@@ -39,8 +39,15 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			JsonNode node = mapper.readTree(message.getPayload());
 			ObjectNode msg = mapper.createObjectNode();
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
+			boolean result;
 
 			switch (node.get("event").asText()) {
+			case "LOGIN":
+				result = game.addNombre(node.get("text").asText());
+				msg.put("event", "LOGIN");
+				msg.put("result", result);
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				break;
 			case "JOIN":
 				msg.put("event", "JOIN");
 				msg.put("id", player.getPlayerId());
@@ -75,6 +82,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
+		game.removeNombre(player.getNombre());
 		game.removePlayer(player);
 
 		ObjectNode msg = mapper.createObjectNode();
