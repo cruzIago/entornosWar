@@ -9,6 +9,7 @@ public class Player extends Spaceship {
 
 	private final WebSocketSession session;
 	private final int playerId;
+	private String nombre;
 	private final String shipType;
 
 	public Player(int playerId, WebSocketSession session) {
@@ -19,6 +20,14 @@ public class Player extends Spaceship {
 
 	public int getPlayerId() {
 		return this.playerId;
+	}
+	
+	public String getNombre() {
+		return this.nombre;
+	}
+	
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
 	}
 
 	public WebSocketSession getSession() {

@@ -29,6 +29,7 @@ public class SpacewarGame {
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	
 	// GLOBAL GAME ROOM
+	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
@@ -39,7 +40,15 @@ public class SpacewarGame {
 	private SpacewarGame() {
 
 	}
-
+	
+	public boolean addNombre(String nombre) {
+		return nombres.add(nombre);
+	}
+	
+	public boolean removeNombre(String nombre) {
+		return nombres.remove(nombre);
+	}
+	
 	public void addPlayer(Player player) {
 		players.put(player.getSession().getId(), player);
 

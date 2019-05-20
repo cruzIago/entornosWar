@@ -1,6 +1,6 @@
 window.onload = function() {
 
-	game = new Phaser.Game(1024, 600, Phaser.AUTO, 'gameDiv')
+	game = new Phaser.Game(1280, 720, Phaser.AUTO, 'gameDiv')
 
 	// GLOBAL VARIABLES
 	game.global = {
@@ -9,7 +9,10 @@ window.onload = function() {
 		socket : null,
 		myPlayer : new Object(),
 		otherPlayers : [],
-		projectiles : []
+		projectiles : [],
+		isLogin : false,
+		isLogout: false,
+		response: false
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -31,6 +34,10 @@ window.onload = function() {
 		var msg = JSON.parse(message.data)
 		
 		switch (msg.event) {
+		case 'LOGIN':
+			game.global.isLogin = msg.result
+			game.global.response = true;			
+			break
 		case 'JOIN':
 			if (game.global.DEBUG_MODE) {
 				console.log('[DEBUG] JOIN message recieved')
@@ -116,6 +123,7 @@ window.onload = function() {
 	// PHASER SCENE CONFIGURATOR
 	game.state.add('bootState', Spacewar.bootState)
 	game.state.add('preloadState', Spacewar.preloadState)
+	game.state.add('loginState', Spacewar.loginState)
 	game.state.add('menuState', Spacewar.menuState)
 	game.state.add('lobbyState', Spacewar.lobbyState)
 	game.state.add('matchmakingState', Spacewar.matchmakingState)

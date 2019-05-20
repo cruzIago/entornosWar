@@ -17,10 +17,20 @@ Spacewar.preloadState.prototype = {
 		game.load.atlas('explosion', 'assets/atlas/explosion.png',
 				'assets/atlas/explosion.json',
 				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH)
+		game.load.image('avisoUso', 'assets/images/AvisoEnUso.png')
+		game.load.image('avisoMaxCaracter', 'assets/images/AvisoMaxCaracteres.png')
+		game.load.image('buscando', 'assets/images/buscando.png')
+		game.load.image('cancelar', 'assets/images/cancelar.png')
+		game.load.image('fondoConLogo', 'assets/images/fondoConLogo.png')
+		game.load.image('login', 'assets/images/login.png')
+		game.load.image('matchmaking', 'assets/images/matchmaking.png')
+		game.load.image('sala', 'assets/images/sala.png')
+		game.load.image('salaSeleccionada', 'assets/images/salaSeleccionada.png')
+		game.load.image('salonFama_Chat', 'assets/images/salonFama_Chat.png')
 	},
 
 	create : function() {
-		game.state.start('menuState')
+		game.state.start('loginState')
 	},
 
 	update : function() {
