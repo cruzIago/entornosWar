@@ -24,15 +24,18 @@ public class SpacewarGame {
 	private final static long TICK_DELAY = 1000 / FPS;
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
-
+	
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
+	
 	// GLOBAL GAME ROOM
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
-
+	
+	private final int xBound=1280;
+	private final int yBound=720;
+	
 	private SpacewarGame() {
 
 	}
@@ -106,7 +109,7 @@ public class SpacewarGame {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
-				player.calculateMovement();
+				player.calculateMovement(xBound,yBound);
 
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());

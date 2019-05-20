@@ -48,7 +48,9 @@ window.onload = function() {
 				console.dir(msg)
 			}
 			game.global.myPlayer.room = {
-					name : msg.room
+					name : msg.room,
+					xBounds : msg.xBounds,
+					yBounds: msg.yBounds
 			}
 			break
 		case 'GAME STATE UPDATE' :

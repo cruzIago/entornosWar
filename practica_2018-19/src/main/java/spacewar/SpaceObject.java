@@ -44,7 +44,22 @@ public class SpaceObject {
 		this.velX *= delta;
 		this.velY *= delta;
 	}
+	
+	//Usada para los jugadores
+	public void applyVelocity2Position(int xBound, int yBound) {
+		double nexX = this.posX + this.velX;
+		double nexY = this.posY + this.velY;
+		if ((nexX < xBound - 48 && nexX > 0 + 48) && (nexY < yBound - 48 && nexY > 0 + 48)) {
 
+			this.posX += this.velX;
+			this.posY += this.velY;
+		} else {
+			//this.posX=this.posX;
+			//this.posY=this.posY;
+		}
+	}
+
+	//Usada para los proyectiles
 	public void applyVelocity2Position() {
 		this.posX += this.velX;
 		this.posY += this.velY;

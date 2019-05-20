@@ -50,6 +50,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "JOIN ROOM":
 				msg.put("event", "NEW ROOM");
 				msg.put("room", "GLOBAL");
+				msg.put("xBounds", 1280);
+				msg.put("yBounds",720);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "UPDATE MOVEMENT":
