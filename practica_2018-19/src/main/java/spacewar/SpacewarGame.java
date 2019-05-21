@@ -24,31 +24,54 @@ public class SpacewarGame {
 	private final static long TICK_DELAY = 1000 / FPS;
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
-	
+
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	
+
 	// GLOBAL GAME ROOM
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
-	
-	private final int xBound=1280;
-	private final int yBound=720;
-	
+
+	private int xBound;
+	private int yBound;
+
 	private SpacewarGame() {
 
 	}
-	
+
+	public void setGame(String kind) {
+		switch (kind) {
+		case "VERSUS":
+			xBound = 1280;
+			yBound = 1280;
+			break;
+		case "ROYALE":
+			xBound = 4800;
+			yBound = 4800;
+			break;
+		default:
+			break;
+		}
+	}
+
+	public int getXBound() {
+		return this.xBound;
+	}
+
+	public int getYBound() {
+		return this.yBound;
+	}
+
 	public boolean addNombre(String nombre) {
 		return nombres.add(nombre);
 	}
-	
+
 	public boolean removeNombre(String nombre) {
 		return nombres.remove(nombre);
 	}
-	
+
 	public void addPlayer(Player player) {
 		players.put(player.getSession().getId(), player);
 
@@ -118,7 +141,7 @@ public class SpacewarGame {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
-				player.calculateMovement(xBound,yBound);
+				player.calculateMovement(xBound, yBound);
 
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());

@@ -23,13 +23,13 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		Player player = new Player(playerId.incrementAndGet(), session);
 		session.getAttributes().put(PLAYER_ATTRIBUTE, player);
-		
+
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "JOIN");
 		msg.put("id", player.getPlayerId());
 		msg.put("shipType", player.getShipType());
 		player.getSession().sendMessage(new TextMessage(msg.toString()));
-		
+
 		game.addPlayer(player);
 	}
 
@@ -54,13 +54,17 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("shipType", player.getShipType());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
+			case "NEW GAME":
+				game.setGame(node.get("kind").asText());
+				break;
 			case "JOIN ROOM":
 				msg.put("event", "NEW ROOM");
 				msg.put("room", "GLOBAL");
-				msg.put("xBounds", 1280);
-				msg.put("yBounds",720);
+				msg.put("xBounds", game.getXBound());
+				msg.put("yBounds", game.getYBound());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
+
 			case "UPDATE MOVEMENT":
 				player.loadMovement(node.path("movement").get("thrust").asBoolean(),
 						node.path("movement").get("brake").asBoolean(),
