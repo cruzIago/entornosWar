@@ -10,8 +10,8 @@ window.onload = function() {
 		myPlayer : new Object(),
 		otherPlayers : [],
 		projectiles : [],
+		salas : [],
 		isLogin : false,
-		isLogout: false,
 		response: false
 	}
 
@@ -34,6 +34,12 @@ window.onload = function() {
 		var msg = JSON.parse(message.data)
 		
 		switch (msg.event) {
+		case 'MENU STATE UPDATE':
+			game.global.salas = []
+			for (var sala of msg.salas) {
+				game.global.salas.push(sala)
+			}
+			break
 		case 'LOGIN':
 			game.global.isLogin = msg.result
 			game.global.response = true;			
