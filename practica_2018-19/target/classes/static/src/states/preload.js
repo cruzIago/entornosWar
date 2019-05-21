@@ -34,7 +34,8 @@ Spacewar.preloadState.prototype = {
 	},
 
 	create : function() {
-		game.state.start('loginState')
+		game.state.start('matchmakingState')
+		//game.state.start('loginState')
 	},
 
 	update : function() {

@@ -4,7 +4,7 @@ public class SpaceObject {
 
 	private int collisionFactor;
 	private double posX, posY, velX, velY, facingAngle;
-
+	
 	public double getPosX() {
 		return this.posX;
 	}
@@ -44,7 +44,30 @@ public class SpaceObject {
 		this.velX *= delta;
 		this.velY *= delta;
 	}
+	
+	//Usada para los jugadores
+	public void applyVelocity2Position(int xBound, int yBound) {
+		this.posX += this.velX;
+		this.posY += this.velY;
+		
+		if(posX-24<0) {
+			this.velX=-velX;
+			this.posX=24;
+		}else if(posX+24>xBound) {
+			this.velX=-velX;
+			this.posX=xBound-24;
+		}
+		if(posY-24<0) {
+			this.velY=-velY;
+			this.posY=24;
+		}else if(posY+24>xBound) {
+			this.velY=-velY;
+			this.posY=xBound-24;
+		}
+		
+	}
 
+	//Usada para los proyectiles
 	public void applyVelocity2Position() {
 		this.posX += this.velX;
 		this.posY += this.velY;

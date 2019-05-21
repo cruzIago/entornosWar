@@ -34,18 +34,44 @@ public class SpacewarGame {
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
 
+	private int xBound;
+	private int yBound;
+
 	private SpacewarGame() {
 
 	}
-	
+
+	public void setGame(String kind) {
+		switch (kind) {
+		case "VERSUS":
+			xBound = 1280;
+			yBound = 1280;
+			break;
+		case "ROYALE":
+			xBound = 4800;
+			yBound = 4800;
+			break;
+		default:
+			break;
+		}
+	}
+
+	public int getXBound() {
+		return this.xBound;
+	}
+
+	public int getYBound() {
+		return this.yBound;
+	}
+
 	public boolean addNombre(String nombre) {
 		return nombres.add(nombre);
 	}
-	
+
 	public boolean removeNombre(String nombre) {
 		return nombres.remove(nombre);
 	}
-	
+
 	public void addPlayer(Player player) {
 		players.put(player.getSession().getId(), player);
 
@@ -115,7 +141,7 @@ public class SpacewarGame {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
-				player.calculateMovement();
+				player.calculateMovement(xBound, yBound);
 
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
