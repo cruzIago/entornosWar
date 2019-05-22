@@ -39,11 +39,19 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			JsonNode node = mapper.readTree(message.getPayload());
 			ObjectNode msg = mapper.createObjectNode();
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
-			boolean result;
 
 			switch (node.get("event").asText()) {
+			case "MENU STATE UPDATE":
+				msg.put("event",  "MENU STATE UPDATE");
+				msg.put("salas", game.getStateSalas());
+				for (Player p : game.getPlayers()) {
+					//esto asi se va a saturar por lo que hay que crear un menu loop y este se mandara a los 
+					//jugadores que estan en el menu solo, mientras que el game loop sera para los jugadores
+					//que esten en partida
+				}
+				break;
 			case "LOGIN":
-				result = game.addNombre(node.get("text").asText());
+				boolean result = game.addNombre(node.get("text").asText());
 				msg.put("event", "LOGIN");
 				msg.put("result", result);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));

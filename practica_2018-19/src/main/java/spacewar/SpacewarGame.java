@@ -1,5 +1,6 @@
 package spacewar;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class SpacewarGame {
 	public final static SpacewarGame INSTANCE = new SpacewarGame();
 
 	private final static int FPS = 30;
+	private final static int MAXSALAS = 10;
 	private final static long TICK_DELAY = 1000 / FPS;
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
@@ -29,6 +31,7 @@ public class SpacewarGame {
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// GLOBAL GAME ROOM
+	private ArrayList<SalaObject> salas = new ArrayList<SalaObject>(MAXSALAS);
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
@@ -38,7 +41,21 @@ public class SpacewarGame {
 	private int yBound;
 
 	private SpacewarGame() {
-
+		
+	}
+	
+	//gestion salas
+	public String getStateSalas() {
+		ArrayNode arrayNodeSalas = mapper.createArrayNode();
+		
+		for (SalaObject sala : salas) {
+			ObjectNode jsonSala = mapper.createObjectNode();
+			jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
+			jsonSala.put("nombre",  sala.getNombreSala());
+			jsonSala.put("modoJuego",  sala.getModoJuego());
+			arrayNodeSalas.addPOJO(jsonSala);
+		}
+		return arrayNodeSalas.toString();
 	}
 
 	public void setGame(String kind) {
@@ -64,6 +81,7 @@ public class SpacewarGame {
 		return this.yBound;
 	}
 
+	//gestion de nombres en el servidor
 	public boolean addNombre(String nombre) {
 		return nombres.add(nombre);
 	}
