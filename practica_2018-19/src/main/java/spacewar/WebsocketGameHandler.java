@@ -70,10 +70,17 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 						node.path("movement").get("brake").asBoolean(),
 						node.path("movement").get("rotLeft").asBoolean(),
 						node.path("movement").get("rotRight").asBoolean());
-				if (node.path("bullet").asBoolean()) {
+				
+				break;
+			case "SHOOT":
+				player.setTimeGame(node.get("gameTime").asInt());
+				
+				if(player.getTimeGame()>player.getBulletTime()) {
+					player.setBulletTime(player.getTimeGame()+250);
 					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
 					game.addProjectile(projectile.getId(), projectile);
 				}
+				
 				break;
 			default:
 				break;

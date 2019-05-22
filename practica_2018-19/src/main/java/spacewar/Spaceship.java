@@ -7,7 +7,10 @@ public class Spaceship extends SpaceObject {
 	private static final double SPACESHIP_ROTATION_SPEED = 3.00;
 	private static final int SPACESHIP_COLLISION_FACTOR = 400;
 	private static final double SPACE_FRICTION = 0.95;
-
+	
+	private double bulletTime=0;
+	private double timeGame=0;
+	
 	class LastMovement {
 		boolean thrust = false;
 		boolean brake = false;
@@ -60,5 +63,22 @@ public class Spaceship extends SpaceObject {
 		this.applyVelocity2Position(xBound,yBound);
 
 		lastMovement = new LastMovement();
+	}
+	
+
+	public double getBulletTime() {
+		return bulletTime;
+	}
+
+	public void setBulletTime(double bulletTime) {
+		this.bulletTime = bulletTime;
+	}
+
+	public double getTimeGame() {
+		return timeGame;
+	}
+
+	public void setTimeGame(double timeGame) {
+		this.timeGame = timeGame;
 	}
 }
