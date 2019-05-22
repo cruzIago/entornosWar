@@ -60,6 +60,8 @@ window.onload = function() {
 				console.log('[DEBUG] NEW ROOM message recieved')
 				console.dir(msg)
 			}
+			
+			//El jugador recibe el nombre de la sala y los limites de la misma para que la cámara sepa donde seguir
 			game.global.myPlayer.room = {
 					name : msg.room,
 					xBounds : msg.xBounds,
@@ -77,6 +79,12 @@ window.onload = function() {
 						game.global.myPlayer.image.x = player.posX
 						game.global.myPlayer.image.y = player.posY
 						game.global.myPlayer.image.angle = player.facingAngle
+						
+						// Text y life son variables de texto encima del jugador
+						game.global.myPlayer.text.x = player.posX
+						game.global.myPlayer.text.y = player.posY - game.global.myPlayer.image.height
+						game.global.myPlayer.life.x=player.posX
+						game.global.myPlayer.life.y=player.posY - game.global.myPlayer.image.height/1.5
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							game.global.otherPlayers[player.id] = {

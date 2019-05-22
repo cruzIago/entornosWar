@@ -3,8 +3,6 @@ Spacewar.gameState = function(game) {
 	this.fireBullet
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
-	this.xBounds;
-	this.yBounds;
 }
 
 Spacewar.gameState.prototype = {
@@ -16,7 +14,10 @@ Spacewar.gameState.prototype = {
 	},
 
 	preload : function() {
+		game.world.width=game.global.myPlayer.room.xBounds;
+		game.world.height=game.global.myPlayer.room.yBounds;
 		// We create a procedural starfield background
+		this.numStars=(game.global.myPlayer.room.xBounds / game.global.myPlayer.room.yBounds)*500
 		for (var i = 0; i < this.numStars; i++) {
 			let sprite = game.add.sprite(game.world.randomX,
 					game.world.randomY, 'spacewar', 'staralpha.png');
@@ -41,38 +42,31 @@ Spacewar.gameState.prototype = {
 				+ '_0' + (Math.floor(Math.random() * 6) + 1) + '.png'
 		game.global.myPlayer.image = game.add.sprite(0, 0, 'spacewar',
 				game.global.myPlayer.shipType)
+				
+		// Creamos los textos de nombre y vida del jugador y los anclamos al jugador
+		game.global.myPlayer.text=game.add.text(0,0,game.global.myPlayer.id,{font:"16px Arial",fill:"#ffffff"});
+		game.global.myPlayer.life=game.add.text(0,0,"100%",{font:"16px Arial",fill:"#ffffff"});
+		game.global.myPlayer.life.anchor.setTo(0.5,0.5);
+		game.global.myPlayer.text.anchor.setTo(0.5,0.5);
 		game.global.myPlayer.image.anchor.setTo(0.5, 0.5)
 		
-		game.world.setBounds(0,0,game.global.myPlayer.room.xBounds,game.global.myPlayer.room.yBounds); // Necesario para que la cámara tenga información de cuanto seguir al jugador
-	},
+		 // Necesario para que la cámara tenga información de cuanto seguir al jugador
+		game.world.setBounds(0,0,game.global.myPlayer.room.xBounds,game.global.myPlayer.room.yBounds);	
+		},
 
 	create : function() {
-		this.bulletTime = 0
-		this.fireBullet = function() {
-			if (game.time.now > this.bulletTime) {
-				this.bulletTime = game.time.now + 250;
-				// this.weapon.fire()
-				return true
-			} else {
-				return false
-			}
-		}
 		
-
 		this.wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		this.sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
 		this.aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
 		this.dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
 		this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		
 		// Stop the following keys from propagating up to the browser
 		game.input.keyboard.addKeyCapture([ Phaser.Keyboard.W,
 				Phaser.Keyboard.S, Phaser.Keyboard.A, Phaser.Keyboard.D,
 				Phaser.Keyboard.SPACEBAR ]);
-
 		game.camera.follow(game.global.myPlayer.image);
 	},
-
 	update : function() {
 		let msg = new Object()
 		msg.event = 'UPDATE MOVEMENT'
@@ -95,12 +89,17 @@ Spacewar.gameState.prototype = {
 		if (this.dKey.isDown)
 			msg.movement.rotRight = true;
 		if (this.spaceKey.isDown) {
-			msg.bullet = this.fireBullet()
+			let shoot=new Object()
+			shoot.event='SHOOT';
+			shoot.gameTime=game.time.now;
+			game.global.socket.send(JSON.stringify(shoot));
+			//msg.bullet = this.fireBullet()
 		}
 		
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Sending UPDATE MOVEMENT message to server")
 		}
+		
 		game.global.socket.send(JSON.stringify(msg))
 	},
 	render:function(){
