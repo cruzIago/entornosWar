@@ -11,16 +11,27 @@ public class Player extends Spaceship {
 	private final int playerId;
 	private String nombre;
 	private final String shipType;
+	private boolean inMatch;
+	private int salaId;
 	
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
 		this.session = session;
 		this.shipType = this.getRandomShipType();
+		this.inMatch = false;
 	}
 
 	
 	public int getPlayerId() {
 		return this.playerId;
+	}
+	
+	public int getSala() {
+		return salaId;
+	}
+	
+	public void setSala(int salaId) {
+		this.salaId = salaId;
 	}
 	
 	public String getNombre() {
@@ -43,6 +54,14 @@ public class Player extends Spaceship {
 		return shipType;
 	}
 	
+	public boolean getInMatch() {
+		return inMatch;
+	}
+	
+	public void setInMatch(boolean inMatch) {
+		this.inMatch = inMatch;
+	}
+	
 	
 	private String getRandomShipType() {
 		String[] randomShips = { "blue", "darkgrey", "green", "metalic", "orange", "purple", "red" };
@@ -50,7 +69,5 @@ public class Player extends Spaceship {
 		ship += "_0" + (new Random().nextInt(5) + 1) + ".png";
 		return ship;
 	}
-
-
 	
 }

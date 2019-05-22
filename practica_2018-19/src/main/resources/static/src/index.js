@@ -36,9 +36,18 @@ window.onload = function() {
 		switch (msg.event) {
 		case 'MENU STATE UPDATE':
 			game.global.salas = []
-			for (var sala of msg.salas) {
-				game.global.salas.push(sala)
-			}
+			
+				for (var sala of msg.salas) {
+					if(typeof sala !=='undefined'){
+						let nuevaSala=new Object()
+						nuevaSala.nPlayers=sala.nPlayers
+						nuevaSala.nombre=sala.nombre
+						nuevaSala.modoJuego=sala.modoJuego
+						game.global.salas.push(nuevaSala)
+					}
+				}
+				game.global.updateMenu();
+			
 			break
 		case 'LOGIN':
 			game.global.isLogin = msg.result
@@ -67,6 +76,9 @@ window.onload = function() {
 					xBounds : msg.xBounds,
 					yBounds: msg.yBounds
 			}
+			break
+		case 'SALAS LIMIT':
+			game.global.response=true;
 			break
 		case 'GAME STATE UPDATE' :
 			if (game.global.DEBUG_MODE) {

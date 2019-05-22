@@ -30,7 +30,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		msg.put("shipType", player.getShipType());
 		player.getSession().sendMessage(new TextMessage(msg.toString()));
 
-		game.addPlayer(player);
+		//game.addPlayer(player);
 	}
 
 	@Override
@@ -41,35 +41,39 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 
 			switch (node.get("event").asText()) {
-			case "MENU STATE UPDATE":
-				msg.put("event",  "MENU STATE UPDATE");
-				msg.put("salas", game.getStateSalas());
-				for (Player p : game.getPlayers()) {
-					//esto asi se va a saturar por lo que hay que crear un menu loop y este se mandara a los 
-					//jugadores que estan en el menu solo, mientras que el game loop sera para los jugadores
-					//que esten en partida
-				}
-				break;
 			case "LOGIN":
 				boolean result = game.addNombre(node.get("text").asText());
 				msg.put("event", "LOGIN");
 				msg.put("result", result);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
+				
+			case "ADD PLAYER":
+				game.addPlayer(player);
+				
 			case "JOIN":
 				msg.put("event", "JOIN");
 				msg.put("id", player.getPlayerId());
 				msg.put("shipType", player.getShipType());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
-			case "NEW GAME":
+				
+			/*case "NEW GAME":
 				game.setGame(node.get("kind").asText());
-				break;
+				game
+				break;*/
+				
+			case "NEW SALA":
+				if(!game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText())) {
+					msg.put("event", "SALAS LIMIT");
+					player.getSession().sendMessage(new TextMessage(msg.toString()));
+				}
+				
 			case "JOIN ROOM":
 				msg.put("event", "NEW ROOM");
 				msg.put("room", "GLOBAL");
-				msg.put("xBounds", game.getXBound());
-				msg.put("yBounds", game.getYBound());
+				/*msg.put("xBounds", game.salas[node.get("salaID").asInt()].getXBound());
+				msg.put("yBounds", game.salas[node.get("salaID").asInt()].getYBound());*/
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 
@@ -86,7 +90,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				if(player.getTimeGame()>player.getBulletTime()) {
 					player.setBulletTime(player.getTimeGame()+250);
 					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
-					game.addProjectile(projectile.getId(), projectile);
+					game.salas[node.get("salaID").asInt()].addProjectile(projectile.getId(), projectile);
 				}
 				
 				break;
@@ -109,6 +113,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "REMOVE PLAYER");
 		msg.put("id", player.getPlayerId());
-		game.broadcast(msg.toString());
+		game.broadcastLostPlayer(msg.toString());
 	}
 }

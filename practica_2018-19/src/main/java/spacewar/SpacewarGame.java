@@ -2,7 +2,6 @@ package spacewar;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class SpacewarGame {
 
 	public final static SpacewarGame INSTANCE = new SpacewarGame();
-
 	private final static int FPS = 30;
 	private final static int MAXSALAS = 10;
 	private final static long TICK_DELAY = 1000 / FPS;
@@ -31,61 +29,39 @@ public class SpacewarGame {
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// GLOBAL GAME ROOM
-	private ArrayList<SalaObject> salas = new ArrayList<SalaObject>(MAXSALAS);
+	public SalaObject[] salas = new SalaObject[MAXSALAS];
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
-	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
 
-	private int xBound;
-	private int yBound;
-
 	private SpacewarGame() {
-		
-	}
-	
-	//gestion salas
-	public String getStateSalas() {
-		ArrayNode arrayNodeSalas = mapper.createArrayNode();
-		
-		for (SalaObject sala : salas) {
-			ObjectNode jsonSala = mapper.createObjectNode();
-			jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
-			jsonSala.put("nombre",  sala.getNombreSala());
-			jsonSala.put("modoJuego",  sala.getModoJuego());
-			arrayNodeSalas.addPOJO(jsonSala);
-		}
-		return arrayNodeSalas.toString();
+
 	}
 
-	public void setGame(String kind) {
-		switch (kind) {
-		case "VERSUS":
-			xBound = 1280;
-			yBound = 1280;
-			break;
-		case "ROYALE":
-			xBound = 4800;
-			yBound = 4800;
-			break;
-		default:
-			break;
-		}
-	}
-
-	public int getXBound() {
-		return this.xBound;
-	}
-
-	public int getYBound() {
-		return this.yBound;
-	}
-
-	//gestion de nombres en el servidor
+	// gestion de nombres en el servidor
 	public boolean addNombre(String nombre) {
 		return nombres.add(nombre);
 	}
-
+	
+	public boolean createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE) {
+		int indiceSalaLibre=getSalaLibre();
+		if (indiceSalaLibre==-1) {
+			return false;
+		}
+		salas[indiceSalaLibre]=new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE);
+		return true;
+	}
+	
+	//Comprueba el primer indice de salas que esté libre
+	private int getSalaLibre() {
+		for (int i=0;i<salas.length;i++) {
+			if(salas[i]==null) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public boolean removeNombre(String nombre) {
 		return nombres.remove(nombre);
 	}
@@ -95,7 +71,7 @@ public class SpacewarGame {
 
 		int count = numPlayers.getAndIncrement();
 		if (count == 0) {
-			this.startGameLoop();
+			this.startMenuLoop();
 		}
 	}
 
@@ -108,34 +84,36 @@ public class SpacewarGame {
 
 		int count = this.numPlayers.decrementAndGet();
 		if (count == 0) {
-			this.stopGameLoop();
+			this.stopMenuLoop();
 		}
 	}
 
-	public void addProjectile(int id, Projectile projectile) {
-		projectiles.put(id, projectile);
-	}
-
-	public Collection<Projectile> getProjectiles() {
-		return projectiles.values();
-	}
-
-	public void removeProjectile(Projectile projectile) {
-		players.remove(projectile.getId(), projectile);
-	}
-
-	public void startGameLoop() {
+	public void startMenuLoop() {
 		scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(() -> tick(), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
 
-	public void stopGameLoop() {
+	public void stopMenuLoop() {
 		if (scheduler != null) {
 			scheduler.shutdown();
 		}
 	}
 
-	public void broadcast(String message) {
+	private void broadcast(String message) {
+		for (Player player : getPlayers()) {
+			try {
+				if (!player.getInMatch()) {
+					player.getSession().sendMessage(new TextMessage(message.toString()));
+				}
+			} catch (Throwable ex) {
+				System.err.println("Execption sending message to player " + player.getSession().getId());
+				ex.printStackTrace(System.err);
+				this.removePlayer(player);
+			}
+		}
+	}
+	
+	public void broadcastLostPlayer(String message) {
 		for (Player player : getPlayers()) {
 			try {
 				player.getSession().sendMessage(new TextMessage(message.toString()));
@@ -147,74 +125,24 @@ public class SpacewarGame {
 		}
 	}
 
-	private void tick() {
-		ObjectNode json = mapper.createObjectNode();
-		ArrayNode arrayNodePlayers = mapper.createArrayNode();
-		ArrayNode arrayNodeProjectiles = mapper.createArrayNode();
+	public void tick() {
+		ObjectNode json=mapper.createObjectNode();
+		ArrayNode arrayNodeSalas = mapper.createArrayNode();
 
-		long thisInstant = System.currentTimeMillis();
-		Set<Integer> bullets2Remove = new HashSet<>();
-		boolean removeBullets = false;
-
-		try {
-			// Update players
-			for (Player player : getPlayers()) {
-				player.calculateMovement(xBound, yBound);
-
-				ObjectNode jsonPlayer = mapper.createObjectNode();
-				jsonPlayer.put("id", player.getPlayerId());
-				jsonPlayer.put("shipType", player.getShipType());
-				jsonPlayer.put("posX", player.getPosX());
-				jsonPlayer.put("posY", player.getPosY());
-				jsonPlayer.put("facingAngle", player.getFacingAngle());
-				arrayNodePlayers.addPOJO(jsonPlayer);
+		for (SalaObject sala : salas) {
+			if(sala!=null) {
+			ObjectNode jsonSala = mapper.createObjectNode();
+			jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
+			jsonSala.put("nombre", sala.getNombreSala());
+			jsonSala.put("modoJuego", sala.getModoJuego());
+			arrayNodeSalas.addPOJO(jsonSala);
 			}
-
-			// Update bullets and handle collision
-			for (Projectile projectile : getProjectiles()) {
-				projectile.applyVelocity2Position();
-
-				// Handle collision
-				for (Player player : getPlayers()) {
-					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
-						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
-						projectile.setHit(true);
-						break;
-					}
-				}
-
-				ObjectNode jsonProjectile = mapper.createObjectNode();
-				jsonProjectile.put("id", projectile.getId());
-
-				if (!projectile.isHit() && projectile.isAlive(thisInstant)) {
-					jsonProjectile.put("posX", projectile.getPosX());
-					jsonProjectile.put("posY", projectile.getPosY());
-					jsonProjectile.put("facingAngle", projectile.getFacingAngle());
-					jsonProjectile.put("isAlive", true);
-				} else {
-					removeBullets = true;
-					bullets2Remove.add(projectile.getId());
-					jsonProjectile.put("isAlive", false);
-					if (projectile.isHit()) {
-						jsonProjectile.put("isHit", true);
-						jsonProjectile.put("posX", projectile.getPosX());
-						jsonProjectile.put("posY", projectile.getPosY());
-					}
-				}
-				arrayNodeProjectiles.addPOJO(jsonProjectile);
-			}
-
-			if (removeBullets)
-				this.projectiles.keySet().removeAll(bullets2Remove);
-
-			json.put("event", "GAME STATE UPDATE");
-			json.putPOJO("players", arrayNodePlayers);
-			json.putPOJO("projectiles", arrayNodeProjectiles);
-
-			this.broadcast(json.toString());
-		} catch (Throwable ex) {
-
 		}
+			
+		json.put("event", "MENU STATE UPDATE");
+		json.putPOJO("salas",arrayNodeSalas);
+		
+		this.broadcast(json.toString());
 	}
 
 	public void handleCollision() {
