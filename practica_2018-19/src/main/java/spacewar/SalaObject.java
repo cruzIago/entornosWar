@@ -23,6 +23,7 @@ public class SalaObject {
 	private Runnable ePartida = () -> startGameLoop();
 	private final String MODOJUEGO;
 	private final String NOMBRE;
+	private final String CREADOR;
 	private final static int FPS = 30;
 	private final static long TICK_DELAY = 1000 / FPS;
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
@@ -32,14 +33,19 @@ public class SalaObject {
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE) {
+	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, String CREADOR) {
 		this.nPlayers = new CyclicBarrier(NJUGADORES, ePartida);
 		this.MODOJUEGO = MODOJUEGO;
 		this.NOMBRE = NOMBRE;
+		this.CREADOR = CREADOR;
 	}
 
 	public String getModoJuego() {
 		return MODOJUEGO;
+	}
+	
+	public String getCreador() {
+		return CREADOR;
 	}
 
 	public synchronized int getNumberPlayersWaiting() {

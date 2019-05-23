@@ -11,7 +11,7 @@ window.onload = function() {
 		otherPlayers : [],
 		projectiles : [],
 		salas : [],
-		isLogin : false,
+		nombreJugador : '',
 		response: false
 	}
 
@@ -50,7 +50,7 @@ window.onload = function() {
 			
 			break
 		case 'LOGIN':
-			game.global.isLogin = msg.result
+			game.global.nombreJugador = msg.nombreJugador
 			game.global.response = true;			
 			break
 		case 'JOIN':

@@ -42,9 +42,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 			switch (node.get("event").asText()) {
 			case "LOGIN":
-				boolean result = game.addNombre(node.get("text").asText());
+				String nombreJugador = game.addNombre(node.get("text").asText());
 				msg.put("event", "LOGIN");
-				msg.put("result", result);
+				msg.put("nombreJugador", nombreJugador);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 				
@@ -64,11 +64,15 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;*/
 				
 			case "NEW SALA":
-				if(!game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText())) {
+				if(!game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), node.get("creador").asText())) {
 					msg.put("event", "SALAS LIMIT");
 					player.getSession().sendMessage(new TextMessage(msg.toString()));
 				}
+				break;
 				
+			case "CANCEL SALA":
+				game.removeSala(node.get("creador").asText());
+				break;
 			case "JOIN ROOM":
 				msg.put("event", "NEW ROOM");
 				msg.put("room", "GLOBAL");

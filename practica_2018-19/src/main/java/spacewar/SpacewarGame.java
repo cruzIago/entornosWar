@@ -38,22 +38,17 @@ public class SpacewarGame {
 
 	}
 
-	// gestion de nombres en el servidor
-	public boolean addNombre(String nombre) {
-		return nombres.add(nombre);
-	}
-	
-	public boolean createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE) {
+	//Gestion salas
+	public boolean createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, String CREADOR) {
 		int indiceSalaLibre=getSalaLibre();
 		if (indiceSalaLibre==-1) {
 			return false;
 		}
-		salas[indiceSalaLibre]=new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE);
+		salas[indiceSalaLibre]=new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
 		return true;
 	}
 	
-	//Comprueba el primer indice de salas que esté libre
-	private int getSalaLibre() {
+	private int getSalaLibre() {//Comprueba el primer indice de salas que esté libre
 		for (int i=0;i<salas.length;i++) {
 			if(salas[i]==null) {
 				return i;
@@ -62,10 +57,27 @@ public class SpacewarGame {
 		return -1;
 	}
 	
+	public void removeSala(String NOMBRE) {
+		for (int i = 0; i < salas.length; i++) {
+			if (salas[i] != null && salas[i].getCreador().equals(NOMBRE)) {
+				salas[i] = null;
+			}
+		}
+	}
+	
+	// gestion de nombres en el servidor
+	public String addNombre(String nombre) {
+		if (nombres.add(nombre)) {
+			return nombre;
+		}
+		return "";
+	}
+	
 	public boolean removeNombre(String nombre) {
 		return nombres.remove(nombre);
 	}
-
+	
+	//gestion jugadores en salas y mensajes al cliente
 	public void addPlayer(Player player) {
 		players.put(player.getSession().getId(), player);
 
@@ -131,11 +143,17 @@ public class SpacewarGame {
 
 		for (SalaObject sala : salas) {
 			if(sala!=null) {
-			ObjectNode jsonSala = mapper.createObjectNode();
-			jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
-			jsonSala.put("nombre", sala.getNombreSala());
-			jsonSala.put("modoJuego", sala.getModoJuego());
-			arrayNodeSalas.addPOJO(jsonSala);
+				ObjectNode jsonSala = mapper.createObjectNode();
+				jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
+				jsonSala.put("nombre", sala.getNombreSala());
+				jsonSala.put("modoJuego", sala.getModoJuego());
+				arrayNodeSalas.addPOJO(jsonSala);
+			} else {
+				ObjectNode jsonSala = mapper.createObjectNode();
+				jsonSala.put("nPlayers", 0);
+				jsonSala.put("nombre", "");
+				jsonSala.put("modoJuego", "");
+				arrayNodeSalas.addPOJO(jsonSala);
 			}
 		}
 			

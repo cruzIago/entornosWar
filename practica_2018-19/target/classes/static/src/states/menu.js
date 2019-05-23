@@ -12,6 +12,8 @@ Spacewar.menuState = function(game) {
 	this.bModoBattleRoyal;
 	this.bModoClassic;
 	this.bSalas;
+	this.bNombre;
+	this.bEnviar;
 	
 	//mensaje
 	this.msg;
@@ -22,7 +24,9 @@ Spacewar.menuState = function(game) {
 	this.tintRojo;
 	this.tintNot;
 	this.MAXSALAS;
+	this.MAXCHARACTERS;
 	this.posSalas;
+	this.keyPress;
 }
 
 Spacewar.menuState.prototype = {
@@ -38,6 +42,7 @@ Spacewar.menuState.prototype = {
 		bSalas = []
 		msg = new Object()
 		MAXSALAS = 10
+		MAXCHARACTERS = 10
 		posSalas = [[392, 135], [660, 135], [392, 220], [660, 220], [392, 305], [660, 305], [392, 390], [660, 390], [392, 475], [660, 475]]
 		game.global.updateMenu=function(){
 			var text;
@@ -66,7 +71,7 @@ Spacewar.menuState.prototype = {
 		mensaje.event="ADD PLAYER"
 		game.global.socket.send(JSON.stringify(mensaje))
 					
-		// buttons
+		// buttons		
 		bCrearSala = game.add.button(0, 610, 'crearSala', crearSalaClick, this);
 		bCrearSala.onInputOver.add(over, {button:bCrearSala});
 		bCrearSala.onInputOut.add(out, {button:bCrearSala});
@@ -83,6 +88,18 @@ Spacewar.menuState.prototype = {
 		bChat = game.add.button(0, 100, 'salonFama_Chat', chatClick, this);
 		bChat.onInputOver.add(over, {button:bChat});
 		bChat.onInputOut.add(out, {button:bChat});
+		
+		bNombre = game.add.button(526, 135, 'sala', nombreClick, this);
+		bNombre.visible = false;
+		bNombre.onInputOver.add(over, {button:bNombre});
+		bNombre.onInputOut.add(out, {button:bNombre});
+		let textNombre = game.add.text(70,43,'NombreSala',{font:"20px Arial",fill:"#ffffff"});
+		bNombre.addChild(textNombre);
+		
+		bEnviar = game.add.button(526, 525, 'enviar', enviarClick, this);
+		bEnviar.visible = false;
+		bEnviar.onInputOver.add(over, {button:bEnviar});
+		bEnviar.onInputOut.add(out, {button:bEnviar});
 		
 		bModoClassic = game.add.button(392, 220, 'salaClassic', modoClassicClick, this);
 		bModoClassic.visible = false;
@@ -107,6 +124,12 @@ Spacewar.menuState.prototype = {
 		//Avisos
 		aviso = game.add.text(640,360,"SALAS LLENAS",{font:"30px Arial",fill:"#ff3d3d"});
 		aviso.visible = false;
+		
+		//control escritura
+		game.input.keyboard.addCallbacks(this, null, null, keyPressMenu);
+		remove = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
+	    remove.onDown.add(removePressMenu, this);
+	    game.input.keyboard.addKeyCapture([Phaser.Keyboard.BACKSPACE]);
 	},
 	
 	update: function() {
@@ -118,7 +141,6 @@ Spacewar.menuState.prototype = {
 				text[i].visible = true
 			}
 		}*/
-		
 		if(game.global.response){
 			aviso.visible=true;
 			setTimeout(function(){
@@ -148,12 +170,16 @@ function crearSalaClick() {
 			bSala.visible = false
 		}
 		bMatchmaking.visible = false
+		bNombre.visible = true
+		bEnviar.visible = true
 		bEmpezar.visible = true
 		bModoClassic.visible = true
 		bModoBattleRoyal.visible = true
 	} else {
 		bCrearSala.tint = tintAzul
 		bEmpezar.tint = tintNot
+		bNombre.visible = false
+		bEnviar.visible = false
 		bEmpezar.visible = false
 		bModoClassic.visible = false
 		bModoBattleRoyal.visible = false
@@ -176,14 +202,6 @@ function matchmakingClick() {
 	}
 }
 
-function empezarClick() {
-	if (bEmpezar.tint === tintAzul) {
-		bEmpezar.tint = tintRojo
-	} else {
-		bEmpezar.tint = tintAzul
-	}
-}
-
 function chatClick() {
 	if (bChat.tint === tintAzul) {
 		bChat.tint = tintRojo
@@ -192,42 +210,66 @@ function chatClick() {
 	}
 }
 
-function modoClassicClick() {
-	if (bModoBattleRoyal.tint === tintNot) {
-		if (bModoClassic.tint === tintAzul) {
+//gestion salas
+function empezarClick() {
+	if (bEmpezar.tint === tintAzul) {
+		bEmpezar.tint = tintRojo
+	} else {
+		bEmpezar.tint = tintAzul
+	}
+}
+
+function nombreClick() {
+	if (bNombre.tint === tintAzul && bEnviar.tint !== tintRojo) {
+		bNombre.tint = tintRojo
+	} else {
+		bNombre.tint = tintAzul
+	}
+}
+
+function enviarClick() {
+	if ((bModoBattleRoyal.tint === tintRojo || bModoClassic.tint === tintRojo) && bNombre.tint === tintNot) {
+		if (bEnviar.tint === tintAzul) {
 			msg.event = 'NEW SALA'
-			msg.modo = 'classic'
-			msg.njugadores = 2
-			msg.nombre = 'un0o'
+			msg.creador = game.global.nombreJugador
+			msg.nombre = bNombre.getChildAt(0).text.toString()
 			game.global.socket.send(JSON.stringify(msg))
-			bModoClassic.tint = tintRojo
+			bEnviar.tint = tintRojo
 		} else {
 			msg.event = 'CANCEL SALA'
+			msg.creador = game.global.nombreJugador
 			game.global.socket.send(JSON.stringify(msg))
+			bEnviar.tint = tintAzul
+		}
+	}
+}
+
+function modoClassicClick() {
+	if (bModoBattleRoyal.tint === tintNot && bEnviar.tint === tintNot) {
+		if (bModoClassic.tint === tintAzul) {
+			msg.modo = 'classic'
+			msg.njugadores = 2
+			bModoClassic.tint = tintRojo
+		} else {
 			bModoClassic.tint = tintAzul
 		}
 	}
 }
 
 function modoBattleRoyalClick() {
-	if (bModoClassic.tint === tintNot) {
+	if (bModoClassic.tint === tintNot && bEnviar.tint === tintNot) {
 		if (bModoBattleRoyal.tint === tintAzul) {
-			msg.event = 'NEW SALA'
 			msg.modo = 'battleRoyal'
 			msg.njugadores = 10
-			msg.nombre = 'battleun0o'
-			game.global.socket.send(JSON.stringify(msg))
 			bModoBattleRoyal.tint = tintRojo
 		} else {
-			msg.event = 'CANCEL SALA'
-			game.global.socket.send(JSON.stringify(msg))
 			bModoBattleRoyal.tint = tintAzul
 		}
 	}
 }
 
 function salaClick() {
-	if (this.button.tint === tintAzul) {
+	if (this.button.tint === tintAzul && this.button.getChildAt(0).text !== '') {
 		for (var bSala of bSalas) {
 			bSala.visible = false
 		}
@@ -238,5 +280,19 @@ function salaClick() {
 		for (var bSala of bSalas) {
 			bSala.visible = true
 		}
+	}
+}
+
+//funciones de escritura
+this.keyPressMenu = function(char) {
+	if (bNombre.tint === tintRojo && bNombre.getChildAt(0).text.length <= MAXCHARACTERS) {
+		bNombre.getChildAt(0).text += char
+	}
+}
+
+this.removePressMenu = function() {
+	if (bNombre.tint === tintRojo) {
+		let str = bNombre.getChildAt(0).text.toString()
+		bNombre.getChildAt(0).text = str.slice(0, str.length-1)
 	}
 }
