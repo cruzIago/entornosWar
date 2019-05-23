@@ -11,6 +11,7 @@ window.onload = function() {
 		otherPlayers : [],
 		projectiles : [],
 		salas : [],
+		chat: [],
 		nombreJugador : '',
 		response: false
 	}
@@ -36,19 +37,26 @@ window.onload = function() {
 		switch (msg.event) {
 		case 'MENU STATE UPDATE':
 			game.global.salas = []
+			game.global.chat = []
 			
-				for (var sala of msg.salas) {
-					if(typeof sala !=='undefined'){
-						let nuevaSala=new Object()
-						nuevaSala.nPlayers=sala.nPlayers
-						nuevaSala.nombre=sala.nombre
-						nuevaSala.modoJuego=sala.modoJuego
-						game.global.salas.push(nuevaSala)
-					}
+			for (var sala of msg.salas) {
+				if(typeof sala !=='undefined'){
+					let nuevaSala=new Object()
+					nuevaSala.nPlayers=sala.nPlayers
+					nuevaSala.nombre=sala.nombre
+					nuevaSala.modoJuego=sala.modoJuego
+					game.global.salas.push(nuevaSala)
 				}
-				game.global.updateMenu();
+			}
 			
+			for (var lineChat of msg.chat) {
+				if(typeof lineChat !== 'undefined') {
+					game.global.chat.push(lineChat)
+				}
+			}	
+			game.global.updateMenu();
 			break
+			
 		case 'LOGIN':
 			game.global.nombreJugador = msg.nombreJugador
 			game.global.response = true;			

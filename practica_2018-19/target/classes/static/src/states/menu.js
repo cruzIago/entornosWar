@@ -25,7 +25,10 @@ Spacewar.menuState = function(game) {
 	this.tintNot;
 	this.MAXSALAS;
 	this.MAXCHARACTERS;
+	this.MAXLINECHAT;
+	this.MAXCHARACTERSCHAT;
 	this.posSalas;
+	this.posChats;
 	this.keyPress;
 }
 
@@ -43,7 +46,10 @@ Spacewar.menuState.prototype = {
 		msg = new Object()
 		MAXSALAS = 10
 		MAXCHARACTERS = 10
+		MAXLINECHAT = 16
+		MAXCHARACTERSCHAT = 30
 		posSalas = [[392, 135], [660, 135], [392, 220], [660, 220], [392, 305], [660, 305], [392, 390], [660, 390], [392, 475], [660, 475]]
+		//posChats = [200,220,240,260,280,300,320,340,,,,,,,]
 		game.global.updateMenu=function(){
 			var text;
 			for(var i=0;i<bSalas.length;i++){
@@ -55,8 +61,10 @@ Spacewar.menuState.prototype = {
 					bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
 					bSalas[i].getChildAt(2).visible = true;
 				}
-				else{
-					//bSalas[i].getChildAt(0).visible = false;
+			}
+			for(var i = 0; i < bChat.children.length; i++){
+				if (typeof game.global.chat[i] !== 'undefined') {
+					bChat.getChildAt(i).text = game.global.chat[i];
 				}
 			}
 		}
@@ -92,6 +100,9 @@ Spacewar.menuState.prototype = {
 		bChat = game.add.button(0, 100, 'salonFama_Chat', chatClick, this);
 		bChat.onInputOver.add(over, {button:bChat});
 		bChat.onInputOut.add(out, {button:bChat});
+		for(var i = 0; i < MAXLINECHAT; i++) {
+			bChat.addChild(game.add.text(30, 105+i*20,'',{font:"12px Arial",fill:"#ffffff"}))
+		}
 		
 		bNombre = game.add.button(526, 135, 'sala', nombreClick, this);
 		bNombre.visible = false;
@@ -120,6 +131,7 @@ Spacewar.menuState.prototype = {
 			bSalas[i].onInputDown.add(salaClick, {button:bSalas[i]});
 			bSalas[i].onInputOver.add(over, {button:bSalas[i]});
 			bSalas[i].onInputOut.add(out, {button:bSalas[i]});
+			bSalas[i].indiceSala = i;
 			let textSala = game.add.text(110,10,'',{font:"16px Arial",fill:"#ffffff", align:"center"});
 			textSala.visible = false;
 			bSalas[i].addChild(textSala);
@@ -133,14 +145,16 @@ Spacewar.menuState.prototype = {
 		}
 		
 		//Avisos
-		aviso = game.add.text(640,360,"SALAS LLENAS",{font:"30px Arial",fill:"#ff3d3d", align: "center"});
+		aviso = game.add.text(600,360,"SALAS LLENAS",{font:"30px Arial",fill:"#ff3d3d", align: "center"});
 		aviso.visible = false;
 		
 		//control escritura
 		game.input.keyboard.addCallbacks(this, null, null, keyPressMenu);
 		remove = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
 	    remove.onDown.add(removePressMenu, this);
-	    game.input.keyboard.addKeyCapture([Phaser.Keyboard.BACKSPACE]);
+	    enter = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+	    enter.onDown.add(enterPressMenu, this);
+	    game.input.keyboard.addKeyCapture([Phaser.Keyboard.ENTER, Phaser.Keyboard.BACKSPACE]);
 	},
 	
 	update: function() {
@@ -225,8 +239,8 @@ function chatClick() {
 //gestion salas
 function cancelarSala() {
 	msg.event = 'CANCEL SALA'
-		msg.creador = game.global.nombreJugador
-		game.global.socket.send(JSON.stringify(msg))
+	msg.creador = game.global.nombreJugador
+	game.global.socket.send(JSON.stringify(msg))
 }
 
 function empezarClick() {
@@ -289,6 +303,9 @@ function salaClick() {
 		for (var bSala of bSalas) {
 			bSala.visible = false
 		}
+		msg.event = 'JOIN SALA'
+		msg.indiceSala = this.button.indiceSala
+		game.global.socket.send(JSON.stringify(msg))
 		this.button.visible = true
 		this.button.tint = tintRojo
 	} else {
@@ -303,6 +320,8 @@ function salaClick() {
 this.keyPressMenu = function(char) {
 	if (bNombre.tint === tintRojo && bNombre.getChildAt(0).text.length <= MAXCHARACTERS) {
 		bNombre.getChildAt(0).text += char
+	} else if (bChat.tint === tintRojo && bChat.getChildAt(bChat.children.length-1).text.length <= MAXCHARACTERSCHAT) {
+		bChat.getChildAt(bChat.children.length-1).text += char
 	}
 }
 
@@ -310,5 +329,18 @@ this.removePressMenu = function() {
 	if (bNombre.tint === tintRojo) {
 		let str = bNombre.getChildAt(0).text.toString()
 		bNombre.getChildAt(0).text = str.slice(0, str.length-1)
+	} else if (bChat.tint === tintRojo) {
+		let str = bChat.getChildAt(bChat.children.length-1).text.toString()
+		bChat.getChildAt(bChat.children.length-1).text = str.slice(0, str.length-1)
+	}
+}
+
+this.enterPressMenu = function() {
+	if (bChat.tint === tintRojo){
+		let msg = new Object()
+		msg.event = 'CHAT'
+		msg.text = game.global.nombreJugador + ': ' + bChat.getChildAt(bChat.children.length-1).text
+		game.global.socket.send(JSON.stringify(msg))
+		bChat.getChildAt(bChat.children.length-1).text = ''
 	}
 }

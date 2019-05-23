@@ -1,9 +1,14 @@
 package spacewar;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +26,7 @@ public class SpacewarGame {
 	public final static SpacewarGame INSTANCE = new SpacewarGame();
 	private final static int FPS = 30;
 	private final static int MAXSALAS = 10;
+	private final static int MAXLINECHAT = 15;
 	private final static long TICK_DELAY = 1000 / FPS;
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
@@ -31,34 +37,42 @@ public class SpacewarGame {
 
 	// GLOBAL GAME ROOM
 	public SalaObject[] salas = new SalaObject[MAXSALAS];
+	private Deque<String> chat = new ArrayDeque<String>();
 	public ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<String, Thread>();
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
-	
 
 	private SpacewarGame() {
 
 	}
 
-	//Gestion salas
+	// gestion chat
+	public synchronized void insertChat(String chatLine) {
+		if (chat.size() >= MAXLINECHAT) {
+			chat.pollFirst();
+		}
+		chat.addLast(chatLine);
+	}
+
+	// Gestion salas
 	public int createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
-		int indiceSalaLibre=getSalaLibre();
-		if (indiceSalaLibre!=-1) {
-			salas[indiceSalaLibre]=new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
+		int indiceSalaLibre = getSalaLibre();
+		if (indiceSalaLibre != -1) {
+			salas[indiceSalaLibre] = new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
 		}
 		return indiceSalaLibre;
 	}
-	
-	private int getSalaLibre() {//Comprueba el primer indice de salas que esté libre
-		for (int i=0;i<salas.length;i++) {
-			if(salas[i]==null) {
+
+	private int getSalaLibre() {// Comprueba el primer indice de salas que esté libre
+		for (int i = 0; i < salas.length; i++) {
+			if (salas[i] == null) {
 				return i;
 			}
 		}
 		return -1;
 	}
-	
+
 	public void removeSala(String NOMBRE) {
 		for (int i = 0; i < salas.length; i++) {
 			if (salas[i] != null && salas[i].getCreador().equals(NOMBRE)) {
@@ -66,7 +80,7 @@ public class SpacewarGame {
 			}
 		}
 	}
-	
+
 	// gestion de nombres en el servidor
 	public String addNombre(String nombre) {
 		if (nombres.add(nombre)) {
@@ -74,12 +88,12 @@ public class SpacewarGame {
 		}
 		return "";
 	}
-	
+
 	public boolean removeNombre(String nombre) {
 		return nombres.remove(nombre);
 	}
-	
-	//gestion jugadores en salas y mensajes al cliente
+
+	// gestion jugadores en salas y mensajes al cliente
 	public void addPlayer(Player player) {
 		players.put(player.getSession().getId(), player);
 
@@ -126,7 +140,7 @@ public class SpacewarGame {
 			}
 		}
 	}
-	
+
 	public void broadcastLostPlayer(String message) {
 		for (Player player : getPlayers()) {
 			try {
@@ -140,11 +154,12 @@ public class SpacewarGame {
 	}
 
 	public void tick() {
-		ObjectNode json=mapper.createObjectNode();
+		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodeSalas = mapper.createArrayNode();
+		ArrayNode arrayNodeChat = mapper.createArrayNode();
 
 		for (SalaObject sala : salas) {
-			if(sala!=null) {
+			if (sala != null) {
 				ObjectNode jsonSala = mapper.createObjectNode();
 				jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
 				jsonSala.put("nombre", sala.getNombreSala());
@@ -158,10 +173,20 @@ public class SpacewarGame {
 				arrayNodeSalas.addPOJO(jsonSala);
 			}
 		}
-			
+
+		Iterator<String> chatI = chat.iterator();
+		for (int i = 0; i < MAXLINECHAT; i++) {
+			if (chatI.hasNext()) {
+				arrayNodeChat.add(chatI.next());
+			} else {
+				arrayNodeChat.add("");
+			}
+		}
+
 		json.put("event", "MENU STATE UPDATE");
-		json.putPOJO("salas",arrayNodeSalas);
-		
+		json.putPOJO("salas", arrayNodeSalas);
+		json.putPOJO("chat", arrayNodeChat);
+
 		this.broadcast(json.toString());
 	}
 
