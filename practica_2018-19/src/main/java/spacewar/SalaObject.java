@@ -26,12 +26,11 @@ public class SalaObject {
 	private final String CREADOR;
 	private final static int FPS = 30;
 	private final static long TICK_DELAY = 1000 / FPS;
-	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
-	private int xBound;
-	private int yBound;
+	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>(); //Protected para que los hijos puedan leer de ella
 
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 
 	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
 		this.nPlayers = new CyclicBarrier(NJUGADORES, ePartida);
@@ -88,37 +87,13 @@ public class SalaObject {
 		return NOMBRE;
 	}
 
-	// gestion salas
-	public void setGame(String kind) {
-		switch (kind) {
-		case "VERSUS":
-			xBound = 1280;
-			yBound = 1280;
-			break;
-		case "ROYALE":
-			xBound = 4800;
-			yBound = 4800;
-			break;
-		default:
-			break;
-		}
-	}
-
-	public int getXBound() {
-		return this.xBound;
-	}
-
-	public int getYBound() {
-		return this.yBound;
-	}
-
 	// gestion game loop
 	public void addProjectile(int id, Projectile projectile) {
 		projectiles.put(id, projectile);
 	}
 
-	public Collection<Projectile> getProjectiles() {
-		return projectiles.values();
+	public Map<Integer, Projectile> getProjectiles() {
+		return this.projectiles;
 	}
 
 	public void removeProjectile(Projectile projectile) {
@@ -136,6 +111,13 @@ public class SalaObject {
 		}
 	}
 
+	public void setScheduler(ScheduledExecutorService scheduler) {
+		this.scheduler=scheduler;
+	}
+	public ScheduledExecutorService getScheduler() {
+		return this.scheduler;
+	}
+	
 	public void broadcast(String message) {
 		for (Player player : getPlayers()) {
 			try {
@@ -162,8 +144,6 @@ public class SalaObject {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
-				player.calculateMovement(xBound, yBound);
-
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
@@ -174,7 +154,7 @@ public class SalaObject {
 			}
 
 			// Update bullets and handle collision
-			for (Projectile projectile : getProjectiles()) {
+			for (Projectile projectile : getProjectiles().values()) {
 				projectile.applyVelocity2Position();
 
 				// Handle collision
@@ -184,6 +164,7 @@ public class SalaObject {
 						if (player.getSalud() <= 0) {
 							removePlayer(player);
 						}
+						
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 						projectile.setHit(true);
 						break;

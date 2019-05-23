@@ -133,6 +133,13 @@ window.onload = function() {
 				}
 			}
 			break
+			
+		case 'START GAME':
+			game.global.xBounds=msg.x_bounds;
+			game.global.yBounds=msg.y_bounds;
+			game.global.isGameStarting=true
+			break
+			
 		case 'REMOVE PLAYER' :
 			if (game.global.DEBUG_MODE) {
 				console.log('[DEBUG] REMOVE PLAYER message recieved')
@@ -155,6 +162,7 @@ window.onload = function() {
 	game.state.add('matchmakingState', Spacewar.matchmakingState)
 	game.state.add('roomState', Spacewar.roomState)
 	game.state.add('gameState', Spacewar.gameState)
+	game.state.add('postGameState',Spacewar.postGameState)
 
 	game.state.start('bootState')
 

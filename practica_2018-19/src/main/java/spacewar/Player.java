@@ -17,7 +17,8 @@ public class Player extends Spaceship {
 	// Variables Ingame
 	private int salud;
 	private int municion;
-
+	private int vidas;
+	
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
 		this.session = session;
@@ -39,6 +40,14 @@ public class Player extends Spaceship {
 
 	public void setMunicion(int municion) {
 		this.municion = municion;
+	}
+	
+	public int getVidas() {
+		return vidas;
+	}
+
+	public void setVidas(int vidas) {
+		this.vidas = vidas;
 	}
 
 	public int getPlayerId() {
@@ -87,5 +96,7 @@ public class Player extends Spaceship {
 		ship += "_0" + (new Random().nextInt(5) + 1) + ".png";
 		return ship;
 	}
+
+	
 
 }
