@@ -39,7 +39,7 @@ public class SpacewarGame {
 	}
 
 	//Gestion salas
-	public boolean createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, String CREADOR) {
+	public boolean createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
 		int indiceSalaLibre=getSalaLibre();
 		if (indiceSalaLibre==-1) {
 			return false;

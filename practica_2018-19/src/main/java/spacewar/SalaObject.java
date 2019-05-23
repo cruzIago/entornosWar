@@ -33,17 +33,18 @@ public class SalaObject {
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, String CREADOR) {
+	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
 		this.nPlayers = new CyclicBarrier(NJUGADORES, ePartida);
 		this.MODOJUEGO = MODOJUEGO;
 		this.NOMBRE = NOMBRE;
-		this.CREADOR = CREADOR;
+		this.CREADOR = creador.getNombre();
+		joinSala(creador);
 	}
 
 	public String getModoJuego() {
 		return MODOJUEGO;
 	}
-	
+
 	public String getCreador() {
 		return CREADOR;
 	}
@@ -53,19 +54,25 @@ public class SalaObject {
 	}
 
 	public void joinSala(Player player) {
-		try {
-			playersSala.put(player.getSession().getId(), player);
-			nPlayers.await();
-		} catch (InterruptedException e) {
-			playersSala.remove(player);
-			e.printStackTrace();
-		} catch (BrokenBarrierException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
+		if (!nPlayers.isBroken()) {
+			try {
+				playersSala.put(player.getSession().getId(), player);
+				nPlayers.await();
+			} catch (InterruptedException e) {
+				if (!this.CREADOR.equals(player.getNombre())) {
+					playersSala.remove(player.getSession().getId());
+				} else {
+					removePlayer(player);
+					nPlayers.reset();
+				}
+			} catch (BrokenBarrierException e) {
+				// TODO Auto-generated catch block
+				removePlayer(player);
+			} finally {
+			}
 		}
 	}
-	
+
 	public void removePlayer(Player player) {
 		playersSala.remove(player.getSession().getId());
 
@@ -110,7 +117,7 @@ public class SalaObject {
 	public void addProjectile(int id, Projectile projectile) {
 		projectiles.put(id, projectile);
 	}
-	
+
 	public Collection<Projectile> getProjectiles() {
 		return projectiles.values();
 	}
@@ -130,10 +137,10 @@ public class SalaObject {
 		}
 	}
 
-	private void broadcast(String message) {
+	public void broadcast(String message) {
 		for (Player player : getPlayers()) {
 			try {
-				if (!player.getInMatch()) {
+				if (player.getInMatch()) {
 					player.getSession().sendMessage(new TextMessage(message.toString()));
 				}
 			} catch (Throwable ex) {
@@ -174,7 +181,10 @@ public class SalaObject {
 				// Handle collision
 				for (Player player : getPlayers()) {
 					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
-						
+						player.setSalud(player.getSalud() - projectile.getDamage());
+						if (player.getSalud() <= 0) {
+							removePlayer(player);
+						}
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 						projectile.setHit(true);
 						break;

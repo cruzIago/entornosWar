@@ -43,6 +43,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			switch (node.get("event").asText()) {
 			case "LOGIN":
 				String nombreJugador = game.addNombre(node.get("text").asText());
+				player.setNombre(nombreJugador);
 				msg.put("event", "LOGIN");
 				msg.put("nombreJugador", nombreJugador);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
@@ -64,7 +65,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;*/
 				
 			case "NEW SALA":
-				if(!game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), node.get("creador").asText())) {
+				if(!game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player)) {
 					msg.put("event", "SALAS LIMIT");
 					player.getSession().sendMessage(new TextMessage(msg.toString()));
 				}

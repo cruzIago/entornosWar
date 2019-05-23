@@ -5,13 +5,13 @@ public class Projectile extends SpaceObject {
 	private static final int LIFESPAN = 2000;
 	private static final double PROJECTILE_SPEED = 25;
 	private static final int PROJECTILE_COLLISION_FACTOR = 200;
-
+	private final int DAMAGE=35; // 3 disparos para destruir una nave
 	private final Player owner;
 	private final long firingInstant;
 	private final int id;
 
 	private boolean isHit = false;
-
+	
 	public Projectile(Player owner, int id) {
 		this.setCollisionFactor(PROJECTILE_COLLISION_FACTOR);
 		this.owner = owner;
@@ -42,6 +42,10 @@ public class Projectile extends SpaceObject {
 
 	public void setHit(boolean isHit) {
 		this.isHit = isHit;
+	}
+	
+	public int getDamage() {
+		return this.DAMAGE;
 	}
 
 	public void initProjectile() {
