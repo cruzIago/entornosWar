@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class SalaObject {
 	private CyclicBarrier nPlayers;
 	private Map<String, Player> playersSala = new ConcurrentHashMap<>();
-	private Runnable ePartida = () -> startGameLoop();
+	private Runnable ePartida = (() -> startGameLoop());
 	private final String MODOJUEGO;
 	private final String NOMBRE;
 	private final String CREADOR;

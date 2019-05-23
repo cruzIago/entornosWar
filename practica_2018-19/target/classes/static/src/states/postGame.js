@@ -1,5 +1,5 @@
 Spacewar.postGameState = function(game) {
-	t
+
 }
 
 Spacewar.postGameState.prototype = {

@@ -18,10 +18,10 @@ Spacewar.gameState.prototype = {
 	},
 
 	preload : function() {
-		game.world.width = game.global.myPlayer.room.xBounds;
-		game.world.height = game.global.myPlayer.room.yBounds;
+		game.world.width = game.global.xBounds;
+		game.world.height = game.global.yBounds;
 		// We create a procedural starfield background
-		this.numStars = (game.global.myPlayer.room.xBounds / game.global.myPlayer.room.yBounds) * 500
+		this.numStars = (game.global.xBounds / game.global.yBounds) * 500
 		for (var i = 0; i < this.numStars; i++) {
 			let sprite = game.add.sprite(game.world.randomX,
 					game.world.randomY, 'spacewar', 'staralpha.png');
@@ -59,12 +59,12 @@ Spacewar.gameState.prototype = {
 			fill : "#ffffff"
 		});
 
-		this.ammo = game.add.text(0, game.global.myPlayer.room.yBounds, "30/30", { //cambiar, el servidor manda
+		this.ammo = game.add.text(0, game.global.yBounds, "30/30", { //cambiar, el servidor manda
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
 		
-		this.fuel = game.add.text(0, game.global.myPlayer.room.yBounds, "100%", { //cambiar, el servidor manda
+		this.fuel = game.add.text(0, game.global.yBounds, "100%", { //cambiar, el servidor manda
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
@@ -75,8 +75,8 @@ Spacewar.gameState.prototype = {
 
 		// Necesario para que la cámara tenga información de cuanto seguir al
 		// jugador
-		game.world.setBounds(0, 0, game.global.myPlayer.room.xBounds,
-				game.global.myPlayer.room.yBounds);
+		game.world.setBounds(0, 0, game.global.xBounds,
+				game.global.yBounds);
 	},
 
 	create : function() {

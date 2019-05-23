@@ -13,7 +13,8 @@ window.onload = function() {
 		salas : [],
 		chat: [],
 		nombreJugador : '',
-		response: false
+		response: false, 
+		isGameStarting: false
 	}
 
 	// WEBSOCKET CONFIGURATOR

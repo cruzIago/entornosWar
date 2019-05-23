@@ -51,6 +51,7 @@ Spacewar.menuState.prototype = {
 		posSalas = [[392, 135], [660, 135], [392, 220], [660, 220], [392, 305], [660, 305], [392, 390], [660, 390], [392, 475], [660, 475]]
 		//posChats = [200,220,240,260,280,300,320,340,,,,,,,]
 		game.global.updateMenu=function(){
+			if (game.global.isGameStarting === false) {
 			var text;
 			for(var i=0;i<bSalas.length;i++){
 				if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
@@ -66,6 +67,7 @@ Spacewar.menuState.prototype = {
 				if (typeof game.global.chat[i] !== 'undefined') {
 					bChat.getChildAt(i).text = game.global.chat[i];
 				}
+			}
 			}
 		}
 	},
@@ -172,6 +174,10 @@ Spacewar.menuState.prototype = {
 				aviso.visible=false;
 				game.global.response=false;
 			},3000);
+		}
+		
+		if(game.global.isGameStarting === true && game.global.nombreJugador !== 'undefined') {
+			game.state.start("gameState")
 		}
 	}
 }

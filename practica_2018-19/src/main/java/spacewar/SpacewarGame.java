@@ -59,7 +59,11 @@ public class SpacewarGame {
 	public int createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
 		int indiceSalaLibre = getSalaLibre();
 		if (indiceSalaLibre != -1) {
-			salas[indiceSalaLibre] = new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
+			if (MODOJUEGO.equals("Classic")) {
+				salas[indiceSalaLibre] = new classicSala(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
+			} else if (MODOJUEGO.equals("Battle Royal")) {
+				salas[indiceSalaLibre] = new royaleSala(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
+			}
 		}
 		return indiceSalaLibre;
 	}
