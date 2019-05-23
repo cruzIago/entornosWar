@@ -63,15 +63,23 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				game.setGame(node.get("kind").asText());
 				game
 				break;*/
+			//gestion chat
+			case "CHAT":
+				game.insertChat(node.get("text").asText());
+				break;
 				
+			//gestion salas
 			case "NEW SALA":
 				int indiceSalaLibre = game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player);
-				Thread newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
-				game.threads.put(player.getNombre(), newThread);
-				newThread.start();
-				newThread.join(100);
-				msg.put("event", "SALAS LIMIT");
-				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				if (indiceSalaLibre != -1) {
+					Thread newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
+					game.threads.put(player.getNombre(), newThread);
+					newThread.start();
+					newThread.join(100);
+				} else {
+					msg.put("event", "SALAS LIMIT");
+					player.getSession().sendMessage(new TextMessage(msg.toString()));
+				}
 				break;
 				
 			case "JOIN SALA":
