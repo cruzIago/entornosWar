@@ -30,7 +30,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		msg.put("shipType", player.getShipType());
 		player.getSession().sendMessage(new TextMessage(msg.toString()));
 
-		//game.addPlayer(player);
+		// game.addPlayer(player);
 	}
 
 	@Override
@@ -65,15 +65,26 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;*/
 				
 			case "NEW SALA":
-				if(!game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player)) {
-					msg.put("event", "SALAS LIMIT");
-					player.getSession().sendMessage(new TextMessage(msg.toString()));
-				}
+				int indiceSalaLibre = game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player);
+				Thread newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
+				game.threads.put(player.getNombre(), newThread);
+				newThread.start();
+				newThread.join(100);
+				msg.put("event", "SALAS LIMIT");
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				break;
+				
+			case "JOIN SALA":
+				int indiceSala = node.get("indiceSala").asInt();
+				Thread newJoinThread = new Thread(()->game.salas[indiceSala].joinSala(player));
+				game.threads.put(player.getNombre(), newJoinThread);
+				newJoinThread.start();
 				break;
 				
 			case "CANCEL SALA":
 				game.removeSala(node.get("creador").asText());
 				break;
+				
 			case "JOIN ROOM":
 				msg.put("event", "NEW ROOM");
 				msg.put("room", "GLOBAL");
@@ -87,8 +98,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 						node.path("movement").get("brake").asBoolean(),
 						node.path("movement").get("rotLeft").asBoolean(),
 						node.path("movement").get("rotRight").asBoolean());
-				
 				break;
+				
 			case "SHOOT":
 				player.setTimeGame(node.get("gameTime").asInt());
 				

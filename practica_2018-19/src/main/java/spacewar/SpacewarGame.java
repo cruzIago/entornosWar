@@ -24,28 +24,30 @@ public class SpacewarGame {
 	private final static long TICK_DELAY = 1000 / FPS;
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
+	public final static int MAXTHREADS = 100;
 
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// GLOBAL GAME ROOM
 	public SalaObject[] salas = new SalaObject[MAXSALAS];
+	public ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<String, Thread>();
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
+	
 
 	private SpacewarGame() {
 
 	}
 
 	//Gestion salas
-	public boolean createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
+	public int createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
 		int indiceSalaLibre=getSalaLibre();
-		if (indiceSalaLibre==-1) {
-			return false;
+		if (indiceSalaLibre!=-1) {
+			salas[indiceSalaLibre]=new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
 		}
-		salas[indiceSalaLibre]=new SalaObject(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
-		return true;
+		return indiceSalaLibre;
 	}
 	
 	private int getSalaLibre() {//Comprueba el primer indice de salas que esté libre

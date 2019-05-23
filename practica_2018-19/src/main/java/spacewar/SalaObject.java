@@ -38,7 +38,6 @@ public class SalaObject {
 		this.MODOJUEGO = MODOJUEGO;
 		this.NOMBRE = NOMBRE;
 		this.CREADOR = creador.getNombre();
-		joinSala(creador);
 	}
 
 	public String getModoJuego() {
