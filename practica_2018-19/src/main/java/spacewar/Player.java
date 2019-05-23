@@ -18,7 +18,8 @@ public class Player extends Spaceship {
 	private int salud;
 	private int municion;
 	private int vidas;
-	
+	private int fuel;
+
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
 		this.session = session;
@@ -30,18 +31,26 @@ public class Player extends Spaceship {
 		return this.salud;
 	}
 
-	public int getMunicion() {
-		return this.municion;
-	}
-
 	public void setSalud(int salud) {
 		this.salud = salud;
+	}
+
+	public void setFuel(int fuel) {
+		this.fuel = fuel;
+	}
+
+	public int getFuel() {
+		return this.fuel;
+	}
+
+	public int getMunicion() {
+		return this.municion;
 	}
 
 	public void setMunicion(int municion) {
 		this.municion = municion;
 	}
-	
+
 	public int getVidas() {
 		return vidas;
 	}
@@ -96,7 +105,5 @@ public class Player extends Spaceship {
 		ship += "_0" + (new Random().nextInt(5) + 1) + ".png";
 		return ship;
 	}
-
-	
 
 }

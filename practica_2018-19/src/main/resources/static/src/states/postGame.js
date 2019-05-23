@@ -1,5 +1,5 @@
 Spacewar.postGameState = function(game) {
-
+	t
 }
 
 Spacewar.postGameState.prototype = {
@@ -15,9 +15,17 @@ Spacewar.postGameState.prototype = {
 	},
 
 	create : function() {
-		//Pasar a menustate
+		botonMenu=game.create.button(); //Funcion para ir al menu
+		textoPuntuaciones=game.create.text();
+		textoResultados=game.create.text(); //Dividir el string o que venga con \n ?
 	},
 
 	update : function() {
 
 	}
+	
+}
+
+function irMenu(){
+	game.state.start("menuState");
+}

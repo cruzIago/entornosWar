@@ -3,6 +3,7 @@ Spacewar.gameState = function(game) {
 	this.maxProjectiles = 800 // 8 per player
 	this.ammo// Ajustar dependiendo del modo de juego
 	this.fuel // Ajustar dependiendo del modo de juego
+	
 }
 
 Spacewar.gameState.prototype = {
@@ -10,6 +11,9 @@ Spacewar.gameState.prototype = {
 	init : function() {
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Entering **GAME** state");
+		}
+		game.global.finishGame=function(){
+			game.state.start('postGame')
 		}
 	},
 

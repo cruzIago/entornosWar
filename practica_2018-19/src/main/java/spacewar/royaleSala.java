@@ -15,7 +15,8 @@ public class royaleSala extends SalaObject {
 	private final int X_BOUNDS = 4000;
 	private final int Y_BOUNDS = 4000;
 	private final int VIDAS_ROYALE = 1;
-
+	private final int MUNICION_INICIAL=30;
+	
 	private final int FPS = 30;
 	private final int TICK_DELAY = 1000 / FPS;
 
@@ -37,6 +38,7 @@ public class royaleSala extends SalaObject {
 		json.put("event", "START GAME");
 		json.put("x_bounds", X_BOUNDS);
 		json.put("y_bounds", Y_BOUNDS);
+		json.put("municion",MUNICION_INICIAL);
 		
 		String message = json.toString();
 		
@@ -77,9 +79,14 @@ public class royaleSala extends SalaObject {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
+				
+				player.calculateMovement(X_BOUNDS, Y_BOUNDS);
+				
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
+				jsonPlayer.put("municion", player.getMunicion());
+				jsonPlayer.put("fuel", player.getFuel());
 				jsonPlayer.put("posX", player.getPosX());
 				jsonPlayer.put("posY", player.getPosY());
 				jsonPlayer.put("facingAngle", player.getFacingAngle());

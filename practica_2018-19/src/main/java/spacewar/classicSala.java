@@ -14,11 +14,12 @@ public class classicSala extends SalaObject {
 
 	private final int X_BOUNDS = 1280;
 	private final int Y_BOUNDS = 720;
-
+	private final int VIDAS_CLASICO = 3;
+	private final int MUNICION_INICIAL=30;
+	
 	private final int FPS = 30;
 	private final int TICK_DELAY = 1000 / FPS;
 
-	private final int VIDAS_CLASICO = 3;
 
 	public classicSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
 		super(NJUGADORES, MODOJUEGO, NOMBRE, creador);
@@ -31,6 +32,7 @@ public class classicSala extends SalaObject {
 		json.put("event", "START GAME");
 		json.put("x_bounds", X_BOUNDS);
 		json.put("y_bounds", Y_BOUNDS);
+		json.put("municion",MUNICION_INICIAL);
 
 		String message = json.toString();
 
@@ -46,7 +48,7 @@ public class classicSala extends SalaObject {
 				this.removePlayer(player);
 			}
 		}
-		
+
 		setScheduler(Executors.newScheduledThreadPool(1));
 		getScheduler().scheduleAtFixedRate(() -> tick(), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
@@ -71,9 +73,14 @@ public class classicSala extends SalaObject {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
+
+				player.calculateMovement(X_BOUNDS, Y_BOUNDS);
+
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
+				jsonPlayer.put("municion", player.getMunicion());
+				jsonPlayer.put("fuel", player.getFuel());
 				if (player.getSalud() <= 0) {
 					if (player.getVidas() <= 0) { // Otra manera para entrar en arrayNodePlayers funcionaría mejor?
 						removePlayer(player);

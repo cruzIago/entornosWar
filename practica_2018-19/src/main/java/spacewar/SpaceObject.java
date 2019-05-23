@@ -69,17 +69,17 @@ public class SpaceObject {
 		this.posX += this.velX;
 		this.posY += this.velY;
 
-		if (posX - 24 < 0) {
+		if (posX - ancho/2 < 0) {
 			this.velX = -velX;
 			this.posX = 24;
-		} else if (posX + 24 > xBound) {
+		} else if (posX + ancho/2 > xBound) {
 			this.velX = -velX;
 			this.posX = xBound - 24;
 		}
-		if (posY - 24 < 0) {
+		if (posY - alto/2 < 0) {
 			this.velY = -velY;
 			this.posY = 24;
-		} else if (posY + 24 > xBound) {
+		} else if (posY + alto/2 > xBound) {
 			this.velY = -velY;
 			this.posY = xBound - 24;
 		}

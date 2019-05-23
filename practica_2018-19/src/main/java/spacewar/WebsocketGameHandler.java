@@ -111,7 +111,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "SHOOT":
 				player.setTimeGame(node.get("gameTime").asInt());
 				
-				if(player.getTimeGame()>player.getBulletTime()) {
+				if(player.getTimeGame()>player.getBulletTime() && player.getMunicion()>0) {
+					player.setMunicion(player.getMunicion()-1);
 					player.setBulletTime(player.getTimeGame()+250);
 					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
 					game.salas[node.get("salaID").asInt()].addProjectile(projectile.getId(), projectile);

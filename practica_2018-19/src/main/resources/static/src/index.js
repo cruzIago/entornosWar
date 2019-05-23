@@ -45,6 +45,7 @@ window.onload = function() {
 					nuevaSala.nPlayers=sala.nPlayers
 					nuevaSala.nombre=sala.nombre
 					nuevaSala.modoJuego=sala.modoJuego
+					nuevaSala.puntuaciones="";
 					game.global.salas.push(nuevaSala)
 				}
 			}
@@ -78,7 +79,8 @@ window.onload = function() {
 				console.dir(msg)
 			}
 			
-			//El jugador recibe el nombre de la sala y los limites de la misma para que la cámara sepa donde seguir
+			// El jugador recibe el nombre de la sala y los limites de la misma
+			// para que la cámara sepa donde seguir
 			game.global.myPlayer.room = {
 					name : msg.room,
 					xBounds : msg.xBounds,
@@ -139,13 +141,21 @@ window.onload = function() {
 						game.global.projectiles[projectile.id].image.visible = false
 					}
 				}
+				
+				// Hacer que recoja las puntuaciones y las ponga en un string
+				// para visualizar tanto en partida como en postpartida
 			}
 			break
 			
 		case 'START GAME':
 			game.global.xBounds=msg.x_bounds;
 			game.global.yBounds=msg.y_bounds;
-			game.global.isGameStarting=true
+			game.global.myPlayer.ammo=msg.municion;
+			game.global.isGameStarting=true;
+			break
+			
+		case 'END GAME':
+			game.global.finishGame(); // Borrar la sala?
 			break
 			
 		case 'REMOVE PLAYER' :
