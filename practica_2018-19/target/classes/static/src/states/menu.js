@@ -50,6 +50,10 @@ Spacewar.menuState.prototype = {
 				if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
 					bSalas[i].getChildAt(0).text = game.global.salas[i].nombre;
 					bSalas[i].getChildAt(0).visible = true;
+					bSalas[i].getChildAt(1).text = game.global.salas[i].modoJuego;
+					bSalas[i].getChildAt(1).visible = true;
+					bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
+					bSalas[i].getChildAt(2).visible = true;
 				}
 				else{
 					//bSalas[i].getChildAt(0).visible = false;
@@ -116,13 +120,20 @@ Spacewar.menuState.prototype = {
 			bSalas[i].onInputDown.add(salaClick, {button:bSalas[i]});
 			bSalas[i].onInputOver.add(over, {button:bSalas[i]});
 			bSalas[i].onInputOut.add(out, {button:bSalas[i]});
-			let text = game.add.text(0,0,'',{font:"16px Arial",fill:"#ffffff"});
-			text.visible = false;
-			bSalas[i].addChild(text);
+			let textSala = game.add.text(110,10,'',{font:"16px Arial",fill:"#ffffff", align:"center"});
+			textSala.visible = false;
+			bSalas[i].addChild(textSala);
+			let textModo = game.add.text(60,45,'',{font:"16px Arial",fill:"#ffffff"});
+			textModo.visible = false;
+			bSalas[i].addChild(textModo);
+			let textNJugadores = game.add.text(190,50,'',{font:"16px Arial",fill:"#ffffff"});
+			textNJugadores.visible = false;
+			bSalas[i].addChild(textNJugadores);
+			
 		}
 		
 		//Avisos
-		aviso = game.add.text(640,360,"SALAS LLENAS",{font:"30px Arial",fill:"#ff3d3d"});
+		aviso = game.add.text(640,360,"SALAS LLENAS",{font:"30px Arial",fill:"#ff3d3d", align: "center"});
 		aviso.visible = false;
 		
 		//control escritura
@@ -179,6 +190,7 @@ function crearSalaClick() {
 		bCrearSala.tint = tintAzul
 		bEmpezar.tint = tintNot
 		bNombre.visible = false
+		cancelarSala()
 		bEnviar.visible = false
 		bEmpezar.visible = false
 		bModoClassic.visible = false
@@ -211,6 +223,12 @@ function chatClick() {
 }
 
 //gestion salas
+function cancelarSala() {
+	msg.event = 'CANCEL SALA'
+		msg.creador = game.global.nombreJugador
+		game.global.socket.send(JSON.stringify(msg))
+}
+
 function empezarClick() {
 	if (bEmpezar.tint === tintAzul) {
 		bEmpezar.tint = tintRojo
@@ -236,9 +254,7 @@ function enviarClick() {
 			game.global.socket.send(JSON.stringify(msg))
 			bEnviar.tint = tintRojo
 		} else {
-			msg.event = 'CANCEL SALA'
-			msg.creador = game.global.nombreJugador
-			game.global.socket.send(JSON.stringify(msg))
+			cancelarSala()
 			bEnviar.tint = tintAzul
 		}
 	}
@@ -247,7 +263,7 @@ function enviarClick() {
 function modoClassicClick() {
 	if (bModoBattleRoyal.tint === tintNot && bEnviar.tint === tintNot) {
 		if (bModoClassic.tint === tintAzul) {
-			msg.modo = 'classic'
+			msg.modo = 'Classic'
 			msg.njugadores = 2
 			bModoClassic.tint = tintRojo
 		} else {
@@ -259,7 +275,7 @@ function modoClassicClick() {
 function modoBattleRoyalClick() {
 	if (bModoClassic.tint === tintNot && bEnviar.tint === tintNot) {
 		if (bModoBattleRoyal.tint === tintAzul) {
-			msg.modo = 'battleRoyal'
+			msg.modo = 'Battle Royal'
 			msg.njugadores = 10
 			bModoBattleRoyal.tint = tintRojo
 		} else {
