@@ -131,11 +131,11 @@ public class SpacewarGame {
 
 		for (SalaObject sala : salas) {
 			if(sala!=null) {
-			ObjectNode jsonSala = mapper.createObjectNode();
-			jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
-			jsonSala.put("nombre", sala.getNombreSala());
-			jsonSala.put("modoJuego", sala.getModoJuego());
-			arrayNodeSalas.addPOJO(jsonSala);
+				ObjectNode jsonSala = mapper.createObjectNode();
+				jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
+				jsonSala.put("nombre", sala.getNombreSala());
+				jsonSala.put("modoJuego", sala.getModoJuego());
+				arrayNodeSalas.addPOJO(jsonSala);
 			}
 		}
 			

@@ -1,8 +1,8 @@
 Spacewar.gameState = function(game) {
-	this.bulletTime
-	this.fireBullet
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
+	this.ammo// Ajustar dependiendo del modo de juego
+	this.fuel // Ajustar dependiendo del modo de juego
 }
 
 Spacewar.gameState.prototype = {
@@ -14,10 +14,10 @@ Spacewar.gameState.prototype = {
 	},
 
 	preload : function() {
-		game.world.width=game.global.myPlayer.room.xBounds;
-		game.world.height=game.global.myPlayer.room.yBounds;
+		game.world.width = game.global.myPlayer.room.xBounds;
+		game.world.height = game.global.myPlayer.room.yBounds;
 		// We create a procedural starfield background
-		this.numStars=(game.global.myPlayer.room.xBounds / game.global.myPlayer.room.yBounds)*500
+		this.numStars = (game.global.myPlayer.room.xBounds / game.global.myPlayer.room.yBounds) * 500
 		for (var i = 0; i < this.numStars; i++) {
 			let sprite = game.add.sprite(game.world.randomX,
 					game.world.randomY, 'spacewar', 'staralpha.png');
@@ -42,20 +42,41 @@ Spacewar.gameState.prototype = {
 				+ '_0' + (Math.floor(Math.random() * 6) + 1) + '.png'
 		game.global.myPlayer.image = game.add.sprite(0, 0, 'spacewar',
 				game.global.myPlayer.shipType)
-				
-		// Creamos los textos de nombre y vida del jugador y los anclamos al jugador
-		game.global.myPlayer.text=game.add.text(0,0,game.global.myPlayer.id,{font:"16px Arial",fill:"#ffffff"});
-		game.global.myPlayer.life=game.add.text(0,0,"100%",{font:"16px Arial",fill:"#ffffff"});
-		game.global.myPlayer.life.anchor.setTo(0.5,0.5);
-		game.global.myPlayer.text.anchor.setTo(0.5,0.5);
-		game.global.myPlayer.image.anchor.setTo(0.5, 0.5)
+
+		// Creamos los textos de nombre y vida del jugador y los anclamos al
+		// jugador
+		game.global.myPlayer.text = game.add.text(0, 0,
+				game.global.myPlayer.id, {
+					font : "16px Arial",
+					fill : "#ffffff"
+				});
+		game.global.myPlayer.life = game.add.text(0, 0, "100%", { //cambiar, el servidor manda
+			font : "16px Arial",
+			fill : "#ffffff"
+		});
+
+		this.ammo = game.add.text(0, game.global.myPlayer.room.yBounds, "30/30", { //cambiar, el servidor manda
+			font : "30px Arial",
+			fill : "#ffffff"
+		});
 		
-		 // Necesario para que la cámara tenga información de cuanto seguir al jugador
-		game.world.setBounds(0,0,game.global.myPlayer.room.xBounds,game.global.myPlayer.room.yBounds);	
-		},
+		this.fuel = game.add.text(0, game.global.myPlayer.room.yBounds, "100%", { //cambiar, el servidor manda
+			font : "30px Arial",
+			fill : "#ffffff"
+		});
+		
+		game.global.myPlayer.life.anchor.setTo(0.5, 0.5);
+		game.global.myPlayer.text.anchor.setTo(0.5, 0.5);
+		game.global.myPlayer.image.anchor.setTo(0.5, 0.5)
+
+		// Necesario para que la cámara tenga información de cuanto seguir al
+		// jugador
+		game.world.setBounds(0, 0, game.global.myPlayer.room.xBounds,
+				game.global.myPlayer.room.yBounds);
+	},
 
 	create : function() {
-		
+
 		this.wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		this.sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
 		this.aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -79,7 +100,7 @@ Spacewar.gameState.prototype = {
 		}
 
 		msg.bullet = false
-		
+
 		if (this.wKey.isDown)
 			msg.movement.thrust = true;
 		if (this.sKey.isDown)
@@ -89,21 +110,20 @@ Spacewar.gameState.prototype = {
 		if (this.dKey.isDown)
 			msg.movement.rotRight = true;
 		if (this.spaceKey.isDown) {
-			let shoot=new Object()
-			shoot.event='SHOOT';
-			shoot.gameTime=game.time.now;
+			let shoot = new Object()
+			shoot.event = 'SHOOT';
+			shoot.gameTime = game.time.now;
 			game.global.socket.send(JSON.stringify(shoot));
-			//msg.bullet = this.fireBullet()
 		}
-		
+
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Sending UPDATE MOVEMENT message to server")
 		}
-		
+
 		game.global.socket.send(JSON.stringify(msg))
 	},
-	render:function(){
-		game.debug.cameraInfo(game.camera,32,32);
-		game.debug.spriteCoords(game.global.myPlayer.image,32,500);
+	render : function() {
+		game.debug.cameraInfo(game.camera, 32, 32);
+		game.debug.spriteCoords(game.global.myPlayer.image, 32, 500);
 	}
 }

@@ -168,6 +168,7 @@ public class SalaObject {
 				// Handle collision
 				for (Player player : getPlayers()) {
 					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
+						
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 						projectile.setHit(true);
 						break;
