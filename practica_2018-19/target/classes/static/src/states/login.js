@@ -56,7 +56,7 @@ Spacewar.loginState.prototype = {
 	
 	update: function() {
 		if (game.global.response === true) {
-			if (game.global.isLogin === true) {
+			if (game.global.nombreJugador !== '') {
 				game.state.start('menuState')
 			} else {
 				avisoUso.visible = true
@@ -69,18 +69,24 @@ Spacewar.loginState.prototype = {
 		} else {
 			avisoCaracteres.visible = false;
 		}
+	}, 
+	
+	keyPress: function(char) {
+		
 	}
 }
 
-function keyPress(char) {
+//funciones de escritura
+this.keyPress = function(char) {
 	text.text += char
 }
 
-function removePress() {
-	text.text = ""
+this.removePress = function() {
+	let str = text.text.toString()
+	text.text = str.slice(0, str.length-1)
 }
 
-function enterPress() {
+this.enterPress = function() {
 	if (text.text.length < 10){
 		let msg = new Object()
 		msg.event = 'LOGIN'
