@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.web.socket.TextMessage;
@@ -19,24 +20,38 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SalaObject {
 	private CyclicBarrier nPlayers;
+	private Semaphore aforo; // Necesario para control de salas, de aforo
 	private Map<String, Player> playersSala = new ConcurrentHashMap<>();
 	private Runnable ePartida = (() -> startGameLoop());
+
 	private final String MODOJUEGO;
 	private final String NOMBRE;
 	private final String CREADOR;
 	private final static int FPS = 30;
 	private final static long TICK_DELAY = 1000 / FPS;
-	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>(); //Protected para que los hijos puedan leer de ella
+	private boolean inProgress;
+	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>(); // Protected para que los hijos puedan
+																				// leer de ella
 
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-
 	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
 		this.nPlayers = new CyclicBarrier(NJUGADORES, ePartida);
+		this.aforo = new Semaphore(NJUGADORES);
 		this.MODOJUEGO = MODOJUEGO;
 		this.NOMBRE = NOMBRE;
 		this.CREADOR = creador.getNombre();
+		this.inProgress = false;
+	}
+
+
+	public boolean isInProgress() {
+		return inProgress;
+	}
+
+	public void setInProgress(boolean inProgress) {
+		this.inProgress = inProgress;
 	}
 
 	public String getModoJuego() {
@@ -46,29 +61,35 @@ public class SalaObject {
 	public String getCreador() {
 		return CREADOR;
 	}
-
+	
 	public synchronized int getNumberPlayersWaiting() {
 		return nPlayers.getNumberWaiting();
 	}
 
 	public void joinSala(Player player) {
-		if (!nPlayers.isBroken()) {
-			try {
+		try {
+			if (!nPlayers.isBroken() && aforo.tryAcquire(100, TimeUnit.MILLISECONDS)) {
 				playersSala.put(player.getSession().getId(), player);
 				nPlayers.await();
-			} catch (InterruptedException e) {
-				if (!this.CREADOR.equals(player.getNombre())) {
-					playersSala.remove(player.getSession().getId());
-				} else {
-					removePlayer(player);
-					nPlayers.reset();
-				}
-			} catch (BrokenBarrierException e) {
-				// TODO Auto-generated catch block
-				removePlayer(player);
-			} finally {
 			}
+		} catch (InterruptedException e) {
+			if (!this.CREADOR.equals(player.getNombre())) {
+				removePlayer(player);
+				aforo.release();
+			} else {
+				aforo.drainPermits(); // El creador deja sin permisos a la sala para evitar unirse
+				removePlayer(player);
+				nPlayers.reset();
+			}
+		} catch (BrokenBarrierException e) {
+			// TODO Auto-generated catch block
+			removePlayer(player);
+		} finally {
 		}
+	}
+	
+	public int getNumPlayersSala() {
+		return playersSala.size();
 	}
 
 	public void removePlayer(Player player) {
@@ -112,12 +133,13 @@ public class SalaObject {
 	}
 
 	public void setScheduler(ScheduledExecutorService scheduler) {
-		this.scheduler=scheduler;
+		this.scheduler = scheduler;
 	}
+
 	public ScheduledExecutorService getScheduler() {
 		return this.scheduler;
 	}
-	
+
 	public void broadcast(String message) {
 		for (Player player : getPlayers()) {
 			try {
@@ -164,7 +186,7 @@ public class SalaObject {
 						if (player.getSalud() <= 0) {
 							removePlayer(player);
 						}
-						
+
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 						projectile.setHit(true);
 						break;

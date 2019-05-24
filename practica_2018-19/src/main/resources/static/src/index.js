@@ -108,16 +108,31 @@ window.onload = function() {
 						game.global.myPlayer.text.y = player.posY - game.global.myPlayer.image.height
 						game.global.myPlayer.life.x=player.posX
 						game.global.myPlayer.life.y=player.posY - game.global.myPlayer.image.height/1.5
+						
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
-							game.global.otherPlayers[player.id] = {
-									image : game.add.sprite(player.posX, player.posY, 'spacewar', player.shipType)
-							}
+							game.global.otherPlayers[player.id]={};
+							game.global.otherPlayers[player.id].image=game.add.sprite(player.posX,player.posY,'spacewar',player.shipType);
+							game.global.otherPlayers[player.id].text=game.add.text(player.posX,player.posY-game.global.myPlayer.image.height,player.vida,{
+								font : "16px Arial",
+								fill : "#ffffff"
+							});
+							game.global.otherPlayers[player.id].vida=game.add.text(player.posX,player.posY-game.global.myPlayer.image.geight/1.5,player.vida,{
+								font : "16px Arial",
+								fill : "#ffffff"
+							});
+							
 							game.global.otherPlayers[player.id].image.anchor.setTo(0.5, 0.5)
+							
 						} else {
 							game.global.otherPlayers[player.id].image.x = player.posX
 							game.global.otherPlayers[player.id].image.y = player.posY
 							game.global.otherPlayers[player.id].image.angle = player.facingAngle
+							game.global.otherPlayers[player.id].text.x=player.posX
+							game.global.otherPlayers[player.id].text.y=player.posY - game.global.myPlayer.image.height;
+							game.global.otherPlayers[player.id].vida.x=player.posX
+							game.global.otherPlayers[player.id].vida.y=player.posY - game.global.myPlayer.image.height;
+							game.global.otherPlayers[player.id]
 						}
 					}
 				}

@@ -15,6 +15,7 @@ public class classicSala extends SalaObject {
 	private final int X_BOUNDS = 1280;
 	private final int Y_BOUNDS = 720;
 	private final int VIDAS_CLASICO = 3;
+	private final int SALUD_CLASICO=100;
 	private final int MUNICION_INICIAL=30;
 	
 	private final int FPS = 30;
@@ -27,6 +28,8 @@ public class classicSala extends SalaObject {
 
 	@Override
 	public void startGameLoop() {
+
+		this.setInProgress(true);
 		ObjectNode json = mapper.createObjectNode();
 
 		json.put("event", "START GAME");
@@ -38,6 +41,9 @@ public class classicSala extends SalaObject {
 
 		for (Player player : getPlayers()) {
 			player.setVidas(VIDAS_CLASICO);
+			player.setSalud(SALUD_CLASICO);
+			player.setMunicion(MUNICION_INICIAL);
+			player.setInMatch(true);
 			try {
 
 				player.getSession().sendMessage(new TextMessage(message.toString()));
@@ -81,16 +87,23 @@ public class classicSala extends SalaObject {
 				jsonPlayer.put("shipType", player.getShipType());
 				jsonPlayer.put("municion", player.getMunicion());
 				jsonPlayer.put("fuel", player.getFuel());
+				
 				if (player.getSalud() <= 0) {
+					player.setVidas(player.getVidas()-1);
 					if (player.getVidas() <= 0) { // Otra manera para entrar en arrayNodePlayers funcionaría mejor?
 						removePlayer(player);
 					} else {
-						jsonPlayer.put("posX", (Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15));
-						jsonPlayer.put("posY", (Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
+						player.setSalud(SALUD_CLASICO);
+						player.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),(Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
+						jsonPlayer.put("vida", player.getSalud());
+						jsonPlayer.put("posX", player.getPosX());
+						jsonPlayer.put("posY", player.getPosY());
 						jsonPlayer.put("facingAngle", player.getFacingAngle());
 						arrayNodePlayers.addPOJO(jsonPlayer);
 					}
+					
 				} else {
+					jsonPlayer.put("vida", player.getSalud());
 					jsonPlayer.put("posX", player.getPosX());
 					jsonPlayer.put("posY", player.getPosY());
 					jsonPlayer.put("facingAngle", player.getFacingAngle());

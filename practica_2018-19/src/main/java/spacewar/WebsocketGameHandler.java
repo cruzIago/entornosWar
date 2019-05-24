@@ -73,6 +73,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				int indiceSalaLibre = game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player);
 				if (indiceSalaLibre != -1) {
 					Thread newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
+					player.setSala(indiceSalaLibre);
 					game.threads.put(player.getNombre(), newThread);
 					newThread.start();
 					newThread.join(100);
@@ -84,6 +85,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				
 			case "JOIN SALA":
 				int indiceSala = node.get("indiceSala").asInt();
+				player.setSala(indiceSala);
 				Thread newJoinThread = new Thread(()->game.salas[indiceSala].joinSala(player));
 				game.threads.put(player.getNombre(), newJoinThread);
 				newJoinThread.start();
@@ -115,7 +117,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					player.setMunicion(player.getMunicion()-1);
 					player.setBulletTime(player.getTimeGame()+250);
 					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
-					game.salas[node.get("salaID").asInt()].addProjectile(projectile.getId(), projectile);
+					game.salas[player.getSala()].addProjectile(projectile.getId(), projectile);
 				}
 				
 				break;

@@ -56,7 +56,7 @@ public class SpacewarGame {
 	}
 
 	// Gestion salas
-	public int createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
+	public synchronized int createSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR) {
 		int indiceSalaLibre = getSalaLibre();
 		if (indiceSalaLibre != -1) {
 			if (MODOJUEGO.equals("Classic")) {
@@ -156,6 +156,15 @@ public class SpacewarGame {
 			}
 		}
 	}
+	
+	private ObjectNode putSalaNull() {
+		ObjectNode jsonSala = mapper.createObjectNode();
+		jsonSala.put("nPlayers", 0);
+		jsonSala.put("nombre", "");
+		jsonSala.put("modoJuego", "");
+		jsonSala.put("inProgress",false);
+		return jsonSala;
+	}
 
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
@@ -164,17 +173,18 @@ public class SpacewarGame {
 
 		for (SalaObject sala : salas) {
 			if (sala != null) {
-				ObjectNode jsonSala = mapper.createObjectNode();
-				jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
-				jsonSala.put("nombre", sala.getNombreSala());
-				jsonSala.put("modoJuego", sala.getModoJuego());
-				arrayNodeSalas.addPOJO(jsonSala);
+				if (sala.getNumPlayersSala() > 0) {
+					ObjectNode jsonSala = mapper.createObjectNode();
+					jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
+					jsonSala.put("nombre", sala.getNombreSala());
+					jsonSala.put("modoJuego", sala.getModoJuego());
+					jsonSala.put("inProgress", sala.isInProgress());
+					arrayNodeSalas.addPOJO(jsonSala);
+				} else {
+					arrayNodeSalas.addPOJO(putSalaNull());
+				}
 			} else {
-				ObjectNode jsonSala = mapper.createObjectNode();
-				jsonSala.put("nPlayers", 0);
-				jsonSala.put("nombre", "");
-				jsonSala.put("modoJuego", "");
-				arrayNodeSalas.addPOJO(jsonSala);
+				arrayNodeSalas.addPOJO(putSalaNull());
 			}
 		}
 

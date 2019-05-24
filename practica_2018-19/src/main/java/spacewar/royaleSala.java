@@ -16,6 +16,7 @@ public class royaleSala extends SalaObject {
 	private final int Y_BOUNDS = 4000;
 	private final int VIDAS_ROYALE = 1;
 	private final int MUNICION_INICIAL=30;
+	private final int SALUD_ROYALE=100;
 	
 	private final int FPS = 30;
 	private final int TICK_DELAY = 1000 / FPS;
@@ -33,6 +34,8 @@ public class royaleSala extends SalaObject {
 
 	@Override
 	public void startGameLoop() {
+
+		this.setInProgress(true);
 		ObjectNode json = mapper.createObjectNode();
 		
 		json.put("event", "START GAME");

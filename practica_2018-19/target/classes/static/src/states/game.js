@@ -1,9 +1,6 @@
 Spacewar.gameState = function(game) {
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
-	this.ammo// Ajustar dependiendo del modo de juego
-	this.fuel // Ajustar dependiendo del modo de juego
-	
 }
 
 Spacewar.gameState.prototype = {
@@ -44,16 +41,17 @@ Spacewar.gameState.prototype = {
 				'purple', 'red' ]
 		let randomImage = random[Math.floor(Math.random() * random.length)]
 				+ '_0' + (Math.floor(Math.random() * 6) + 1) + '.png'
-		game.global.myPlayer.image = game.add.sprite(0, 0, 'spacewar',
+		game.global.myPlayer.image = game.add.sprite(game.world.randomX, game.world.randomY, 'spacewar',
 				game.global.myPlayer.shipType)
 
 		// Creamos los textos de nombre y vida del jugador y los anclamos al
 		// jugador
 		game.global.myPlayer.text = game.add.text(0, 0,
-				game.global.myPlayer.id, {
+				game.global.nombreJugador, {
 					font : "16px Arial",
 					fill : "#ffffff"
 				});
+		
 		game.global.myPlayer.life = game.add.text(0, 0, "100%", { //cambiar, el servidor manda
 			font : "16px Arial",
 			fill : "#ffffff"
