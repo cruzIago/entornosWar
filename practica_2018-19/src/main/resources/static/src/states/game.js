@@ -10,11 +10,13 @@ Spacewar.gameState.prototype = {
 			console.log("[DEBUG] Entering **GAME** state");
 		}
 		game.global.finishGame=function(){
-			game.state.start('postGame')
+			game.state.start("postGameState")
+			game.input.keyboard.stop()
 		}
 	},
 
 	preload : function() {
+		
 		game.world.width = game.global.xBounds;
 		game.world.height = game.global.yBounds;
 		// We create a procedural starfield background
@@ -41,8 +43,8 @@ Spacewar.gameState.prototype = {
 				'purple', 'red' ]
 		let randomImage = random[Math.floor(Math.random() * random.length)]
 				+ '_0' + (Math.floor(Math.random() * 6) + 1) + '.png'
-		game.global.myPlayer.image = game.add.sprite(game.world.randomX, game.world.randomY, 'spacewar',
-				game.global.myPlayer.shipType)
+		game.global.myPlayer.image = game.add.sprite(game.world.randomX,
+				game.world.randomY, 'spacewar', game.global.myPlayer.shipType)
 
 		// Creamos los textos de nombre y vida del jugador y los anclamos al
 		// jugador
@@ -51,30 +53,38 @@ Spacewar.gameState.prototype = {
 					font : "16px Arial",
 					fill : "#ffffff"
 				});
-		
-		game.global.myPlayer.life = game.add.text(0, 0, "100%", { //cambiar, el servidor manda
+
+		game.global.myPlayer.life = game.add.text(0, 0, "100%", { // cambiar,
+																	// el
+																	// servidor
+																	// manda
 			font : "16px Arial",
 			fill : "#ffffff"
 		});
 
-		this.ammo = game.add.text(0, game.global.yBounds, "30/30", { //cambiar, el servidor manda
+		this.ammo = game.add.text(0, game.global.yBounds, "30/30", { // cambiar,
+																		// el
+																		// servidor
+																		// manda
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
-		
-		this.fuel = game.add.text(0, game.global.yBounds, "100%", { //cambiar, el servidor manda
+
+		this.fuel = game.add.text(0, game.global.yBounds, "100%", { // cambiar,
+																	// el
+																	// servidor
+																	// manda
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
-		
+
 		game.global.myPlayer.life.anchor.setTo(0.5, 0.5);
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5);
 		game.global.myPlayer.image.anchor.setTo(0.5, 0.5)
 
 		// Necesario para que la cámara tenga información de cuanto seguir al
 		// jugador
-		game.world.setBounds(0, 0, game.global.xBounds,
-				game.global.yBounds);
+		game.world.setBounds(0, 0, game.global.xBounds, game.global.yBounds);
 	},
 
 	create : function() {
@@ -125,7 +135,9 @@ Spacewar.gameState.prototype = {
 		game.global.socket.send(JSON.stringify(msg))
 	},
 	render : function() {
-		game.debug.cameraInfo(game.camera, 32, 32);
-		game.debug.spriteCoords(game.global.myPlayer.image, 32, 500);
+		if (game.global.DEBUG_MODE) {
+			game.debug.cameraInfo(game.camera, 32, 32);
+			game.debug.spriteCoords(game.global.myPlayer.image, 32, 500);
+		}
 	}
 }

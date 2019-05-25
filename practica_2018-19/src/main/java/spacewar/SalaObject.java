@@ -95,9 +95,16 @@ public class SalaObject {
 	}
 
 	public void removePlayer(Player player) {
+		player.setInMatch(false);
 		playersSala.remove(player.getSession().getId());
-
-		if (playersSala.size() == 0) {
+		
+		if (playersSala.size() ==0) {
+			//Por si se va el ganador de la partida al mismo tiempo
+			this.stopGameLoop();
+		}else if(playersSala.size()==1) {
+			//El ganador de la partida
+			endGame(playersSala.values().iterator().next(),true);
+			playersSala.remove(playersSala.values().iterator().next().getSession().getId());
 			this.stopGameLoop();
 		}
 	}
@@ -155,7 +162,20 @@ public class SalaObject {
 			}
 		}
 	}
-
+	
+	public void endGame(Player player, boolean isWinner) {
+		try {
+			ObjectNode json = mapper.createObjectNode();
+			json.put("event", "END GAME");
+			json.put("isWinner", isWinner);
+			String message = json.toString();
+			player.setInMatch(false);
+			player.getSession().sendMessage(new TextMessage(message.toString()));
+		} catch (Throwable ex) {
+			System.out.println("ERROR ENVIANDO EL MENSAJE DE FIN DE PARTIDA");
+		}
+	}
+	
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodePlayers = mapper.createArrayNode();

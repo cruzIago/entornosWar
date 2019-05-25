@@ -15,17 +15,19 @@ Spacewar.postGameState.prototype = {
 	},
 
 	create : function() {
-		botonMenu=game.create.button(); //Funcion para ir al menu
+		bMenu = game.add.button(0, 610, 'enviar', irMenuClick, this);
+		bMenu.onInputOver.add(over, {button:bMenu});
+		bMenu.onInputOut.add(out, {button:bMenu});
 		textoPuntuaciones=game.create.text();
-		textoResultados=game.create.text(); //Dividir el string o que venga con \n ?
+		textoResultados=game.create.text(); //Dividir el string o que venga con \n ?*/
 	},
 
 	update : function() {
-
+		irMenu();
 	}
 	
 }
 
-function irMenu(){
+function irMenuClick(){
 	game.state.start("menuState");
 }

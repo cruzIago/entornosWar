@@ -113,8 +113,9 @@ window.onload = function() {
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							game.global.otherPlayers[player.id]={};
+							game.global.otherPlayers[player.id].nombre=player.nombre;
 							game.global.otherPlayers[player.id].image=game.add.sprite(player.posX,player.posY,'spacewar',player.shipType);
-							game.global.otherPlayers[player.id].text=game.add.text(player.posX,player.posY-game.global.myPlayer.image.height,player.vida,{
+							game.global.otherPlayers[player.id].text=game.add.text(player.posX,player.posY-game.global.myPlayer.image.height,player.nombre,{
 								font : "16px Arial",
 								fill : "#ffffff"
 							});
@@ -130,10 +131,10 @@ window.onload = function() {
 							game.global.otherPlayers[player.id].image.y = player.posY
 							game.global.otherPlayers[player.id].image.angle = player.facingAngle
 							game.global.otherPlayers[player.id].text.x=player.posX
-							game.global.otherPlayers[player.id].text.y=player.posY - game.global.myPlayer.image.height;
+							game.global.otherPlayers[player.id].text.y=player.posY - game.global.myPlayer.image.height
+							game.global.otherPlayers[player.id].vida.text=player.vida + "%"
 							game.global.otherPlayers[player.id].vida.x=player.posX
-							game.global.otherPlayers[player.id].vida.y=player.posY - game.global.myPlayer.image.height;
-							game.global.otherPlayers[player.id]
+							game.global.otherPlayers[player.id].vida.y=player.posY - game.global.myPlayer.image.height/1.5
 						}
 					}
 				}

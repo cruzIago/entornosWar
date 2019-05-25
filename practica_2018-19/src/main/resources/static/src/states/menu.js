@@ -183,6 +183,7 @@ Spacewar.menuState.prototype = {
 		}
 		
 		if(game.global.isGameStarting === true && game.global.nombreJugador !== 'undefined') {
+			game.global.isGameStarting=false; // Para que no vayan indefinidamente a partidas
 			game.state.start("gameState")
 		}
 	}
