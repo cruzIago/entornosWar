@@ -30,6 +30,7 @@ public class SalaObject {
 	private final static int FPS = 30;
 	private final static long TICK_DELAY = 1000 / FPS;
 	private boolean inProgress;
+	private float mediaSala;
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>(); // Protected para que los hijos puedan
 																				// leer de ella
 
@@ -43,6 +44,7 @@ public class SalaObject {
 		this.NOMBRE = NOMBRE;
 		this.CREADOR = creador.getNombre();
 		this.inProgress = false;
+		this.mediaSala = creador.getMedia();
 	}
 
 

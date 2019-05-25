@@ -31,11 +31,13 @@ public class SpacewarGame {
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
 	public final static int MAXTHREADS = 100;
+	public final static int NLEVELS = 3;//rangos de nivel de jugadores para matchmaking
 
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// GLOBAL GAME ROOM
+	public SalaObject[] matchmaking = new SalaObject[NLEVELS];
 	public SalaObject[] salas = new SalaObject[MAXSALAS];
 	private Deque<String> chat = new ArrayDeque<String>();
 	public ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<String, Thread>();

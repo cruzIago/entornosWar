@@ -13,6 +13,11 @@ public class Player extends Spaceship {
 	private final String shipType;
 	private boolean inMatch;
 	private int salaId;
+	private int partidasJugadas;
+	private int partidasGanadas;
+	private int disparosRealizados;
+	private int disparosAcertados;
+	private float media;
 
 	// Variables Ingame
 	private int salud;
@@ -25,6 +30,32 @@ public class Player extends Spaceship {
 		this.session = session;
 		this.shipType = this.getRandomShipType();
 		this.inMatch = false;
+		this.media = 0.5f;
+		this.partidasJugadas = 0;
+		this.partidasGanadas = 0;
+		this.disparosAcertados = 0;
+		this.disparosRealizados = 0;
+	}
+
+	// gestion media
+	public void incrementPartidas(boolean isGanada) {
+		partidasJugadas++;
+		if (isGanada) {
+			partidasGanadas++;
+		}
+	}
+
+	public void incrementDisparos(int nDisparos, int nAcertados) {
+		disparosRealizados += nDisparos;
+		disparosAcertados += nAcertados;
+	}
+
+	public float getMedia() {
+		return media;
+	}
+
+	public void updateMedia() { //media conseguida apartir de las victorias y los disparos acertados
+		media = ((disparosAcertados / disparosRealizados) + (partidasGanadas / partidasJugadas)) / 2;
 	}
 
 	public int getSalud() {

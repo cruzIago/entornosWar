@@ -63,6 +63,16 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				game.setGame(node.get("kind").asText());
 				game
 				break;*/
+				
+			//gestion matchmaking
+			case "MATCHMAKING":
+				
+				break;
+				
+			case "CANCEL MATCHMAKING":
+				
+				break;
+				
 			//gestion chat
 			case "CHAT":
 				game.insertChat(node.get("text").asText());

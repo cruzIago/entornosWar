@@ -30,6 +30,7 @@ Spacewar.menuState = function(game) {
 	this.posSalas;
 	this.posChats;
 	this.keyPress;
+	this.isAnyButtonSalaPress;
 }
 
 Spacewar.menuState.prototype = {
@@ -43,6 +44,7 @@ Spacewar.menuState.prototype = {
 		tintRojo = 0xff3d3d
 		tintNot = 0xffffff
 		bSalas = []
+		isAnyButtonSalaPress = false;
 		msg = new Object()
 		MAXSALAS = 10
 		MAXCHARACTERS = 10
@@ -55,12 +57,16 @@ Spacewar.menuState.prototype = {
 			var text;
 			for(var i=0;i<bSalas.length;i++){
 				if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
-					bSalas[i].getChildAt(0).text = game.global.salas[i].nombre;
+					if (game.global.salas[i].inProgress) {
+						bSalas[i].getChildAt(0).text = 'En progreso';
+					}else {
+						bSalas[i].getChildAt(0).text = game.global.salas[i].nombre;
+						bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
+						bSalas[i].getChildAt(2).visible = true;
+					}
 					bSalas[i].getChildAt(0).visible = true;
 					bSalas[i].getChildAt(1).text = game.global.salas[i].modoJuego;
 					bSalas[i].getChildAt(1).visible = true;
-					bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
-					bSalas[i].getChildAt(2).visible = true;
 				}
 			}
 			for(var i = 0; i < bChat.children.length; i++){
@@ -223,12 +229,18 @@ function crearSalaClick() {
 }
 
 function matchmakingClick() {
-	if (bMatchmaking.tint === tintAzul) {
+	if (bMatchmaking.tint === tintAzul && isAnyButtonSalaPress == false) {
 		bMatchmaking.tint = tintRojo
+		msg.event = 'MATCHMAKING'
+			msg.nombre = game.global.nombreJugador
+			game.global.socket.send(JSON.stringify(msg))
 		bCrearSala.visible = false
 		buscando.visible = true
 	} else {
 		bMatchmaking.tint = tintAzul
+		msg.event = 'CANCEL MATCHMAKING'
+			msg.nombre = game.global.nombreJugador
+			game.global.socket.send(JSON.stringify(msg))
 		buscando.visible = false
 		bCrearSala.visible = true
 	}
@@ -305,7 +317,8 @@ function modoBattleRoyalClick() {
 }
 
 function salaClick() {
-	if (this.button.tint === tintAzul && this.button.getChildAt(0).text !== '') {
+	if (this.button.tint === tintAzul && this.button.getChildAt(0).text !== '' && this.button.getChildAt(0).text !== 'En progreso') {
+		isAnyButtonSalaPress = true;
 		for (var bSala of bSalas) {
 			bSala.visible = false
 		}
@@ -315,6 +328,7 @@ function salaClick() {
 		this.button.visible = true
 		this.button.tint = tintRojo
 	} else {
+		isAnyButtonSalaPress = true;
 		this.button.tint = tintAzul
 		for (var bSala of bSalas) {
 			bSala.visible = true
