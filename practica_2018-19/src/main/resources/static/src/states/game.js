@@ -10,8 +10,10 @@ Spacewar.gameState.prototype = {
 			console.log("[DEBUG] Entering **GAME** state");
 		}
 		game.global.finishGame=function(){
-			game.state.start("postGameState")
-			game.input.keyboard.stop()
+			game.state.start("menuState")
+			game.input.keyboard.removeKeyCapture([ Phaser.Keyboard.W,
+				Phaser.Keyboard.S, Phaser.Keyboard.A, Phaser.Keyboard.D,
+				Phaser.Keyboard.SPACEBAR ]);
 		}
 	},
 

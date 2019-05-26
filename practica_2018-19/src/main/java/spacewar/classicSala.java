@@ -102,14 +102,12 @@ public class classicSala extends SalaObject {
 						jsonPlayer.put("posX", player.getPosX());
 						jsonPlayer.put("posY", player.getPosY());
 						jsonPlayer.put("facingAngle", player.getFacingAngle());
-						arrayNodePlayers.addPOJO(jsonPlayer);
 					}
 
 				} else {
 					jsonPlayer.put("posX", player.getPosX());
 					jsonPlayer.put("posY", player.getPosY());
 					jsonPlayer.put("facingAngle", player.getFacingAngle());
-					arrayNodePlayers.addPOJO(jsonPlayer);
 				}
 
 				jsonPlayer.put("vida", player.getSalud());

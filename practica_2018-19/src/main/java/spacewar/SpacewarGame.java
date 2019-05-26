@@ -168,6 +168,13 @@ public class SpacewarGame {
 		return jsonSala;
 	}
 
+	public void checkAndRemoveSalas() {
+		for(int i=0;i<salas.length;i++) {
+			if(salas[i]!=null && salas[i].getNumPlayersSala()<=0) {
+				salas[i]=null;
+			}
+		}
+	}
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodeSalas = mapper.createArrayNode();
@@ -189,7 +196,9 @@ public class SpacewarGame {
 				arrayNodeSalas.addPOJO(putSalaNull());
 			}
 		}
-
+		
+		checkAndRemoveSalas();
+		
 		Iterator<String> chatI = chat.iterator();
 		for (int i = 0; i < MAXLINECHAT; i++) {
 			if (chatI.hasNext()) {

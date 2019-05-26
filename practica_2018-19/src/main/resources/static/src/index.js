@@ -174,6 +174,7 @@ window.onload = function() {
 			
 		case 'END GAME':
 			game.global.finishGame(); // Borrar la sala?
+			game.global.otherPlayers=[]
 			break
 			
 		case 'REMOVE PLAYER' :
