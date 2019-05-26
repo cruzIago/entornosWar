@@ -31,9 +31,9 @@ public class SalaObject {
 	private final static long TICK_DELAY = 1000 / FPS;
 	private boolean inProgress;
 	private float mediaSala;
-	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>(); // Protected para que los hijos puedan
-																				// leer de ella
-
+	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
+	
+	private String tablaDePuntuaciones;
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -165,12 +165,16 @@ public class SalaObject {
 	
 	public void endGame(Player player, boolean isWinner) {
 		try {
+			if(isWinner) {
+				player.incrementPartidasGanadas();
+			}
 			ObjectNode json = mapper.createObjectNode();
 			json.put("event", "END GAME");
 			json.put("isWinner", isWinner);
 			String message = json.toString();
 			player.setInMatch(false);
 			player.getSession().sendMessage(new TextMessage(message.toString()));
+			
 		} catch (Throwable ex) {
 			System.out.println("ERROR ENVIANDO EL MENSAJE DE FIN DE PARTIDA");
 		}

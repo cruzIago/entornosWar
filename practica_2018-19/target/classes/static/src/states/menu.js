@@ -31,11 +31,13 @@ Spacewar.menuState = function(game) {
 	this.posChats;
 	this.keyPress;
 	this.isAnyButtonSalaPress;
+	this.isCreateComplete;
 }
 
 Spacewar.menuState.prototype = {
 
 	init : function() {
+		isCreateComplete=false;
 		game.global.response=false
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Entering **MENU** state");
@@ -53,7 +55,7 @@ Spacewar.menuState.prototype = {
 		posSalas = [[392, 135], [660, 135], [392, 220], [660, 220], [392, 305], [660, 305], [392, 390], [660, 390], [392, 475], [660, 475]]
 		//posChats = [200,220,240,260,280,300,320,340,,,,,,,]
 		game.global.updateMenu=function(){
-			if (game.global.isGameStarting === false) {
+			if (game.global.isGameStarting === false && isCreateComplete) {
 			var text;
 			for(var i=0;i<bSalas.length;i++){
 				if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
@@ -163,6 +165,7 @@ Spacewar.menuState.prototype = {
 	    enter = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 	    enter.onDown.add(enterPressMenu, this);
 	    game.input.keyboard.addKeyCapture([Phaser.Keyboard.ENTER, Phaser.Keyboard.BACKSPACE]);
+	    isCreateComplete=true;
 	},
 	
 	update: function() {
@@ -182,7 +185,8 @@ Spacewar.menuState.prototype = {
 			},3000);
 		}
 		
-		if(game.global.isGameStarting === true && game.global.nombreJugador !== 'undefined') {
+		if( game.global.isGameStarting === true && game.global.nombreJugador !== 'undefined') {
+			isCreateComplete=false;
 			game.global.isGameStarting=false; // Para que no vayan indefinidamente a partidas
 			game.state.start("gameState")
 		}

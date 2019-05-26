@@ -38,16 +38,16 @@ public class Player extends Spaceship {
 	}
 
 	// gestion media
-	public void incrementPartidas(boolean isGanada) {
+	public void incrementPartidasJugadas() {
 		partidasJugadas++;
-		if (isGanada) {
-			partidasGanadas++;
-		}
+	}
+	
+	public void incrementPartidasGanadas() {
+		partidasGanadas+=1;
 	}
 
-	public void incrementDisparos(int nDisparos, int nAcertados) {
-		disparosRealizados += nDisparos;
-		disparosAcertados += nAcertados;
+	public void incrementDisparosAcertados() {
+		disparosAcertados +=1;
 	}
 
 	public float getMedia() {
@@ -79,6 +79,7 @@ public class Player extends Spaceship {
 	}
 
 	public void setMunicion(int municion) {
+		this.disparosRealizados+=1;
 		this.municion = municion;
 	}
 

@@ -39,6 +39,7 @@ public class classicSala extends SalaObject {
 		String message = json.toString();
 
 		for (Player player : getPlayers()) {
+			player.incrementPartidasJugadas();
 			player.setVidas(VIDAS_CLASICO);
 			player.setSalud(SALUD_CLASICO);
 			player.setMunicion(MUNICION_INICIAL);
@@ -121,6 +122,7 @@ public class classicSala extends SalaObject {
 				// Handle collision
 				for (Player player : getPlayers()) {
 					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
+						projectile.getOwner().incrementDisparosAcertados();
 						player.setSalud(player.getSalud() - projectile.getDamage());
 						projectile.setHit(true);
 						break;

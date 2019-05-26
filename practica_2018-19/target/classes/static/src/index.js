@@ -14,7 +14,8 @@ window.onload = function() {
 		chat: [],
 		nombreJugador : '',
 		response: false, 
-		isGameStarting: false
+		isGameStarting: false,
+		gameCreated: false
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -56,7 +57,8 @@ window.onload = function() {
 				if(typeof lineChat !== 'undefined') {
 					game.global.chat.push(lineChat)
 				}
-			}	
+			}
+			
 			game.global.updateMenu();
 			break
 			
@@ -107,34 +109,45 @@ window.onload = function() {
 						// Text y life son variables de texto encima del jugador
 						game.global.myPlayer.text.x = player.posX
 						game.global.myPlayer.text.y = player.posY - game.global.myPlayer.image.height
-						game.global.myPlayer.life.x=player.posX
-						game.global.myPlayer.life.y=player.posY - game.global.myPlayer.image.height/1.5
+						game.global.myPlayer.life.x = player.posX
+						game.global.myPlayer.life.y = player.posY - game.global.myPlayer.image.height/1.5
+						game.global.myPlayer.life.text = player.vida + "%"
+						game.global.myPlayer.ammo.text = player.municion + "/" + game.global.myPlayer.initialAmmo
+						game.global.myPlayer.fuel.text = player.fuel
 						
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							game.global.otherPlayers[player.id]={};
 							game.global.otherPlayers[player.id].nombre=player.nombre;
-							game.global.otherPlayers[player.id].image=game.add.sprite(player.posX,player.posY,'spacewar',player.shipType);
-							game.global.otherPlayers[player.id].text=game.add.text(player.posX,player.posY-game.global.myPlayer.image.height,player.nombre,{
-								font : "16px Arial",
-								fill : "#ffffff"
-							});
-							game.global.otherPlayers[player.id].vida=game.add.text(player.posX,player.posY-game.global.myPlayer.image.geight/1.5,player.vida,{
-								font : "16px Arial",
-								fill : "#ffffff"
-							});
-							
-							game.global.otherPlayers[player.id].image.anchor.setTo(0.5, 0.5)
+							game.global.otherPlayers[player.id].shipType=player.shipType;
+							game.global.otherPlayers[player.id].posX=player.posX;
+							game.global.otherPlayers[player.id].posY=player.posY;
+							game.global.otherPlayers[player.id].vida=player.vida;
 							
 						} else {
-							game.global.otherPlayers[player.id].image.x = player.posX
-							game.global.otherPlayers[player.id].image.y = player.posY
-							game.global.otherPlayers[player.id].image.angle = player.facingAngle
-							game.global.otherPlayers[player.id].text.x=player.posX
-							game.global.otherPlayers[player.id].text.y=player.posY - game.global.myPlayer.image.height
-							game.global.otherPlayers[player.id].vida.text=player.vida + "%"
-							game.global.otherPlayers[player.id].vida.x=player.posX
-							game.global.otherPlayers[player.id].vida.y=player.posY - game.global.myPlayer.image.height/1.5
+						  if(typeof game.global.otherPlayers[player.id].image !=='undefined'){
+							  	game.global.otherPlayers[player.id].image.x = player.posX
+							  	game.global.otherPlayers[player.id].image.y = player.posY
+							  	game.global.otherPlayers[player.id].image.angle = player.facingAngle
+							  	game.global.otherPlayers[player.id].text.x=player.posX
+								game.global.otherPlayers[player.id].text.y=player.posY - game.global.myPlayer.image.height
+								game.global.otherPlayers[player.id].vida.text=player.vida + "%"
+								game.global.otherPlayers[player.id].vida.x=player.posX
+								game.global.otherPlayers[player.id].vida.y=player.posY - game.global.myPlayer.image.height/1.5
+							
+							}else{
+								game.global.otherPlayers[player.id].image=game.add.sprite(game.global.otherPlayers[player.id].posX, game.global.otherPlayers[player.id].posY,'spacewar',game.global.otherPlayers[player.id].shipType);
+								game.global.otherPlayers[player.id].text=game.add.text(game.global.otherPlayers[player.id].posX,game.global.otherPlayers[player.id].posY-game.global.otherPlayers[player.id].image.height,game.global.otherPlayers[player.id].nombre,{
+									font : "16px Arial",
+									fill : "#ffffff"
+								});
+								game.global.otherPlayers[player.id].vida=game.add.text(game.global.otherPlayers[player.id].posX,game.global.otherPlayers[player.id].posY-game.global.otherPlayers[player.id].image.height/1.5,game.global.otherPlayers[player.id].vida,{
+									font : "16px Arial",
+									fill : "#ffffff"
+								});
+						
+							game.global.otherPlayers[player.id].image.anchor.setTo(0.5, 0.5)
+							}
 						}
 					}
 				}
@@ -168,7 +181,7 @@ window.onload = function() {
 		case 'START GAME':
 			game.global.xBounds=msg.x_bounds;
 			game.global.yBounds=msg.y_bounds;
-			game.global.myPlayer.ammo=msg.municion;
+			game.global.myPlayer.initialAmmo=msg.municion;
 			game.global.isGameStarting=true;
 			break
 			
