@@ -215,8 +215,6 @@ public class SpacewarGame {
 	public void checkAndRemoveSalas() {
 		for (int i = 0; i < salas.length; i++) {
 			if (salas[i] != null && salas[i].getNumberPlayersWaiting() <= 0) {
-				int j;
-				j = salas[i].getNumberPlayersWaiting();
 				salas[i] = null;
 			}
 		}

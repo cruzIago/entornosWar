@@ -42,4 +42,10 @@ public class SpacewarGameTest {
 		assertTrue("The fist message should contain 'join', but it is " + msg, msg.contains("JOIN"));
 		ws.disconnect();
 	}
+	
+	//Test para comprobar que dos se unen a una partida, uno se muere y los dos pasan a resultados
+	@Test
+	public void testJoinStart()throws Exception{
+		
+	}
 }

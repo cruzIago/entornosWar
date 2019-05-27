@@ -80,7 +80,7 @@ public class SalaObject {
 	}
 	
 	public int getNumberPlayersWaiting() {
-		return this.NJUGADORES - aforo.availablePermits();
+		return playersSala.size();
 	}
 	
 	public void drainPermitsOfSala() {
