@@ -276,8 +276,12 @@ function cancelarSala() {
 }
 
 function empezarClick() {
-	if (bEmpezar.tint === tintAzul) {
+	if (bEmpezar.tint === tintAzul && bEnviar.tint === tintRojo) {
 		bEmpezar.tint = tintRojo
+		msg.event = 'EMPEZAR PARTIDA'
+		msg.creador = game.global.nombreJugador
+		msg.nombre = bNombre.getChildAt(0).text.toString()
+		game.global.socket.send(JSON.stringify(msg))
 	} else {
 		bEmpezar.tint = tintAzul
 	}
