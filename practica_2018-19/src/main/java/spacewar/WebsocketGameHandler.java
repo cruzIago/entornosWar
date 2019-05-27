@@ -101,6 +101,10 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getThread().start();
 				break;
 			
+			case "EMPEZAR PARTIDA":
+				game.salas[player.getSala()].startMatch();
+				break;
+			
 			case "EXIT SALA":
 				Thread otro = game.threads.get(player.getNombre());
 				otro.interrupt();

@@ -78,6 +78,11 @@ public class SalaObject {
 		return this.NJUGADORES - aforo.availablePermits();
 	}
 	
+	public void startMatch() {
+		barrera.release(NJUGADORES-aforo.drainPermits());
+		this.startGameLoop();
+	}
+	
 	public void drainPermitsOfSala() {
 		aforo.drainPermits();
 	}

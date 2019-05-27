@@ -47,6 +47,7 @@ public class royaleSala extends SalaObject {
 		
 		for (Player player : getPlayers()) {
 			player.setVidas(VIDAS_ROYALE);
+			player.setInMatch(true);
 			try {
 				
 				player.getSession().sendMessage(new TextMessage(message.toString()));
