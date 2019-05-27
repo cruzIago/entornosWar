@@ -186,7 +186,7 @@ public class SpacewarGame {
 			} catch (Throwable ex) {
 				System.err.println("Execption sending message to player " + player.getSession().getId());
 				ex.printStackTrace(System.err);
-				this.removePlayer(player);
+				//this.removePlayer(player);
 			}
 		}
 	}
@@ -198,7 +198,7 @@ public class SpacewarGame {
 			} catch (Throwable ex) {
 				System.err.println("Execption sending message to player " + player.getSession().getId());
 				ex.printStackTrace(System.err);
-				this.removePlayer(player);
+				//this.removePlayer(player);
 			}
 		}
 	}

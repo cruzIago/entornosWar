@@ -82,11 +82,11 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "NEW SALA":
 				int indiceSalaLibre = game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player);
 				if (indiceSalaLibre != -1) {
-					newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
 					player.setSala(indiceSalaLibre);
-					game.threads.put(player.getNombre(), newThread);
-					newThread.start();
-					newThread.join(100);
+					player.setThread(new Thread(()->game.salas[indiceSalaLibre].joinSala(player)));
+					game.threads.put(player.getNombre(), player.getThread());
+					player.getThread().start();
+					player.getThread().join(100);
 				} else {
 					msg.put("event", "SALAS LIMIT");
 					player.getSession().sendMessage(new TextMessage(msg.toString()));
@@ -96,7 +96,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "JOIN SALA":
 				indiceSala = node.get("indiceSala").asInt();
 				player.setSala(indiceSala);
-				player.setThread(new Thread(()->game.salas[indiceSala].joinSala(player)));;
+				player.setThread(new Thread(()->game.salas[indiceSala].joinSala(player)));
 				game.threads.put(player.getNombre(), player.getThread());
 				player.getThread().start();
 				break;
@@ -152,6 +152,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 		game.removeNombre(player.getNombre());
+		player.getThread().interrupt();
 		game.removePlayer(player);
 		game.removeSala(player.getNombre());
 
