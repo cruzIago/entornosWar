@@ -1,6 +1,7 @@
 Spacewar.gameState = function(game) {
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
+	this.maxMunicion = 20
 }
 
 Spacewar.gameState.prototype = {
@@ -9,9 +10,8 @@ Spacewar.gameState.prototype = {
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Entering **GAME** state");
 		}
-		game.global.finishGame = function() {
-			game.state.start("menuState")
-			game.input.keyboard.reset()
+		game.global.finishGame = function(mensaje) {
+			game.state.start("postGameState",true,false,mensaje)
 		}
 	},
 
@@ -37,7 +37,16 @@ Spacewar.gameState.prototype = {
 			game.global.projectiles[i].image.anchor.setTo(0.5, 0.5)
 			game.global.projectiles[i].image.visible = false
 		}
-		
+		// Precargamos la municion
+		game.global.municiones = new Array(this.maxMunicion)
+		for (var i = 0; i < this.maxMunicion; i++) {
+			game.global.municiones[i] = {
+				image : game.add.sprite(0, 0, 'municion', 'municion.png')
+			}
+			game.global.municiones[i].image.anchor.setTo(0.5, 0.5)
+			game.global.municiones[i].image.visible = false
+		}
+
 		// we load a random ship
 		let random = [ 'blue', 'darkgrey', 'green', 'metalic', 'orange',
 				'purple', 'red' ]
@@ -54,20 +63,22 @@ Spacewar.gameState.prototype = {
 					fill : "#ffffff"
 				});
 
-		game.global.myPlayer.life = game.add.text(0, 0, "100%", { // cambiar
+		game.global.myPlayer.life = game.add.text(0, 0, "100%", { 
 			font : "16px Arial",
 			fill : "#ffffff"
 		});
 
-		game.global.myPlayer.ammo = game.add.text(150, 600, "30/30", { // cambiar
+		game.global.myPlayer.ammo = game.add.text(150, 600, "30/30", {
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
+		game.global.myPlayer.ammo.fixedToCamera = true;
 
-		game.global.myPlayer.fuel = game.add.text(1000, 600, "100%", { // cambiar
+		game.global.myPlayer.fuel = game.add.text(1000, 600, "100%", { 
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
+		game.global.myPlayer.fuel.fixedToCamera = true;
 
 		game.global.myPlayer.life.anchor.setTo(0.5, 0.5);
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5);
@@ -79,26 +90,38 @@ Spacewar.gameState.prototype = {
 	},
 
 	create : function() {
-		
-		
-		for(var i=0;i<game.global.otherPlayers.length;i++){
-			if(typeof game.global.otherPlayers[i]!=='undefined'){
-				game.global.otherPlayers[i].image=game.add.sprite(game.global.otherPlayers[i].posX, game.global.otherPlayers[i].posY,'spacewar',game.global.otherPlayers[i].shipType);
-				game.global.otherPlayers[i].text=game.add.text(game.global.otherPlayers[i].posX,game.global.otherPlayers[i].posY-game.global.otherPlayers[i].image.height,game.global.otherPlayers[i].nombre,{
-					font : "16px Arial",
-					fill : "#ffffff"
-				});
-				game.global.otherPlayers[i].vida=game.add.text(game.global.otherPlayers[i].posX,game.global.otherPlayers[i].posY-game.global.otherPlayers[i].image.height/1.5,game.global.otherPlayers[i].vida,{
-					font : "16px Arial",
-					fill : "#ffffff"
-				});
-		
-			game.global.otherPlayers[i].image.anchor.setTo(0.5, 0.5)
+
+		for (var i = 0; i < game.global.otherPlayers.length; i++) {
+			if (typeof game.global.otherPlayers[i] !== 'undefined') {
+				game.global.otherPlayers[i].image = game.add.sprite(
+						game.global.otherPlayers[i].posX,
+						game.global.otherPlayers[i].posY, 'spacewar',
+						game.global.otherPlayers[i].shipType);
+				game.global.otherPlayers[i].text = game.add.text(
+						game.global.otherPlayers[i].posX,
+						game.global.otherPlayers[i].posY
+								- game.global.otherPlayers[i].image.height,
+						game.global.otherPlayers[i].nombre, {
+							font : "16px Arial",
+							fill : "#ffffff"
+						});
+				game.global.otherPlayers[i].vida = game.add.text(
+						game.global.otherPlayers[i].posX,
+						game.global.otherPlayers[i].posY
+								- game.global.otherPlayers[i].image.height
+								/ 1.5, game.global.otherPlayers[i].vida, {
+							font : "16px Arial",
+							fill : "#ffffff"
+						});
+
+				game.global.otherPlayers[i].image.anchor.setTo(0.5, 0.5)
+				game.global.otherPlayers[i].text.anchor.setTo(0.5, 0.5)
+				game.global.otherPlayers[i].vida.anchor.setTo(0.5, 0.5)
 			}
 		}
-		
-		
-		
+
+		//game.global.royaleBounds = game.add.sprite(0, 0, 'cuadradoRoyale');
+
 		this.wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		this.sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
 		this.aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -109,7 +132,7 @@ Spacewar.gameState.prototype = {
 				Phaser.Keyboard.S, Phaser.Keyboard.A, Phaser.Keyboard.D,
 				Phaser.Keyboard.SPACEBAR ]);
 		game.camera.follow(game.global.myPlayer.image);
-		game.global.gameCreated=true;
+		game.global.gameCreated = true;
 	},
 	update : function() {
 		let msg = new Object()

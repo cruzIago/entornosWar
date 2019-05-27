@@ -1,6 +1,7 @@
 package spacewar;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.web.socket.TextMessage;
 
@@ -32,8 +34,11 @@ public class SalaObject {
 	private boolean inProgress;
 	private float mediaSala;
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
-	
-	private String tablaDePuntuaciones;
+	private Map<Integer, Municion> municiones = new ConcurrentHashMap<>();
+	private AtomicInteger municionId = new AtomicInteger(0); // Gestionamos los id de la municion
+
+	private String puntuacion_final;
+
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -46,7 +51,6 @@ public class SalaObject {
 		this.inProgress = false;
 		this.mediaSala = creador.getMedia();
 	}
-
 
 	public boolean isInProgress() {
 		return inProgress;
@@ -63,7 +67,7 @@ public class SalaObject {
 	public String getCreador() {
 		return CREADOR;
 	}
-	
+
 	public synchronized int getNumberPlayersWaiting() {
 		return nPlayers.getNumberWaiting();
 	}
@@ -89,7 +93,7 @@ public class SalaObject {
 		} finally {
 		}
 	}
-	
+
 	public int getNumPlayersSala() {
 		return playersSala.size();
 	}
@@ -97,13 +101,13 @@ public class SalaObject {
 	public void removePlayer(Player player) {
 		player.setInMatch(false);
 		playersSala.remove(player.getSession().getId());
-		
-		if (playersSala.size() ==0) {
-			//Por si se va el ganador de la partida al mismo tiempo
+
+		if (playersSala.size() == 0) {
+			// Por si se va el ganador de la partida al mismo tiempo
 			this.stopGameLoop();
-		}else if(playersSala.size()==1) {
-			//El ganador de la partida
-			endGame(playersSala.values().iterator().next(),true);
+		} else if (playersSala.size() == 1) {
+			// El ganador de la partida
+			endGame(playersSala.values().iterator().next(), true);
 			playersSala.remove(playersSala.values().iterator().next().getSession().getId());
 			this.stopGameLoop();
 		}
@@ -122,12 +126,33 @@ public class SalaObject {
 		projectiles.put(id, projectile);
 	}
 
+	// Para la gestion de la municion por el mapa
+	public void addMunicion(int id, Municion municion) {
+		municiones.put(id, municion);
+	}
+
+	public int obtenerIdMunicion() {
+		return this.municionId.get();
+	}
+
+	public int obtenerIdMunicionYSumar() {
+		return this.municionId.getAndIncrement();
+	}
+
+	public Map<Integer, Municion> getMuniciones() {
+		return this.municiones;
+	}
+
 	public Map<Integer, Projectile> getProjectiles() {
 		return this.projectiles;
 	}
 
+	public void removeMunicion(Municion municion) {
+		municiones.remove(municion.getId(), municion);
+	}
+
 	public void removeProjectile(Projectile projectile) {
-		playersSala.remove(projectile.getId(), projectile);
+		projectiles.remove(projectile.getId(), projectile);
 	}
 
 	public void startGameLoop() {
@@ -162,24 +187,34 @@ public class SalaObject {
 			}
 		}
 	}
-	
+
 	public void endGame(Player player, boolean isWinner) {
 		try {
-			if(isWinner) {
+			if (isWinner) {
 				player.incrementPartidasGanadas();
 			}
+			player.updateMedia();
+			puntuacion_final="Terminaste en el puesto "+playersSala.size();
 			ObjectNode json = mapper.createObjectNode();
+			//Se le envia a los jugadores su puntuacion/posicion en la partida y su nueva media
 			json.put("event", "END GAME");
 			json.put("isWinner", isWinner);
+			json.put("puntuacionFinal", puntuacion_final);
+			json.put("media", player.getMedia());
 			String message = json.toString();
 			player.setInMatch(false);
 			player.getSession().sendMessage(new TextMessage(message.toString()));
-			
+			// Para eliminar los jugadores que pierden la partida
+			json = mapper.createObjectNode();
+			json.put("event", "REMOVE PLAYER");
+			json.put("id", player.getPlayerId());
+			this.broadcast(json.toString());
+
 		} catch (Throwable ex) {
 			System.out.println("ERROR ENVIANDO EL MENSAJE DE FIN DE PARTIDA");
 		}
 	}
-	
+
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodePlayers = mapper.createArrayNode();

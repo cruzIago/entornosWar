@@ -10,12 +10,13 @@ window.onload = function() {
 		myPlayer : new Object(),
 		otherPlayers : [],
 		projectiles : [],
+		municiones: [],
 		salas : [],
 		chat: [],
 		nombreJugador : '',
 		response: false, 
 		isGameStarting: false,
-		gameCreated: false
+		gameCreated: false,
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -147,6 +148,8 @@ window.onload = function() {
 								});
 						
 							game.global.otherPlayers[player.id].image.anchor.setTo(0.5, 0.5)
+							game.global.otherPlayers[player.id].text.anchor.setTo(0.5, 0.5)
+							game.global.otherPlayers[player.id].vida.anchor.setTo(0.5, 0.5)
 							}
 						}
 					}
@@ -175,6 +178,28 @@ window.onload = function() {
 				
 				// Hacer que recoja las puntuaciones y las ponga en un string
 				// para visualizar tanto en partida como en postpartida
+				/*if(typeof msg.resta_x !== 'undefined' && typeof msg.resta_y !== 'undefined' ){
+					if(typeof game.global.royaleBounds == 'undefined'){
+						game.global.royaleBounds=game.add.sprite(0,0,'cuadradoRoyale');
+					}else{
+						game.global.royaleBounds.x = game.global.royaleBounds.x+msg.resta_x;
+						game.global.royaleBounds.y = game.global.royaleBounds.y+msg.resta_y;
+						game.global.royaleBounds.width = game.global.royaleBounds.width-msg.resta_x;
+						game.global.royaleBounds.height = game.global.royaleBounds.height-msg.resta_y;
+					}
+				}*/
+				for(var muni of msg.municiones){
+					if(muni.isAlive){
+						game.global.municiones[muni.id].image.x=muni.posX;
+						game.global.municiones[muni.id].image.y=muni.posY;
+						if(game.global.municiones[muni.id].image.visible===false){
+							game.global.municiones[muni.id].image.visible=true
+						}
+					}else{
+						game.global.municiones[muni.id].image.visible=false;
+					}
+				}
+				
 			}
 			break
 			
@@ -186,7 +211,7 @@ window.onload = function() {
 			break
 			
 		case 'END GAME':
-			game.global.finishGame(); // Borrar la sala?
+			game.global.finishGame(msg); 
 			game.global.otherPlayers=[]
 			break
 			
@@ -196,6 +221,8 @@ window.onload = function() {
 				console.dir(msg.players)
 			}
 			game.global.otherPlayers[msg.id].image.destroy()
+			game.global.otherPlayers[msg.id].text.destroy()
+			game.global.otherPlayers[msg.id].vida.destroy()
 			delete game.global.otherPlayers[msg.id]
 		default :
 			console.dir(msg)

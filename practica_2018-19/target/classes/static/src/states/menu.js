@@ -313,7 +313,7 @@ function modoBattleRoyalClick() {
 	if (bModoClassic.tint === tintNot && bEnviar.tint === tintNot) {
 		if (bModoBattleRoyal.tint === tintAzul) {
 			msg.modo = 'Battle Royal'
-			msg.njugadores = 10
+			msg.njugadores = 3
 			bModoBattleRoyal.tint = tintRojo
 		} else {
 			bModoBattleRoyal.tint = tintAzul

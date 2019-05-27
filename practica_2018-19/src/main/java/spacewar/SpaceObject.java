@@ -65,18 +65,18 @@ public class SpaceObject {
 	}
 
 	// Usada para los jugadores
-	public void applyVelocity2Position(int xBound, int yBound) {
+	public void applyVelocity2Position(double xBound, double yBound,double initialX,double initialY) {
 		this.posX += this.velX;
 		this.posY += this.velY;
 
-		if (posX - ancho/2 < 0) {
+		if (posX - ancho/2 <initialX) {
 			this.velX = -velX;
 			this.posX = 24;
 		} else if (posX + ancho/2 > xBound) {
 			this.velX = -velX;
 			this.posX = xBound - 24;
 		}
-		if (posY - alto/2 < 0) {
+		if (posY - alto/2 < initialY) {
 			this.velY = -velY;
 			this.posY = 24;
 		} else if (posY + alto/2 > yBound) {

@@ -32,6 +32,8 @@ Spacewar.preloadState.prototype = {
 		game.load.image('salaSeleccionada', 'assets/images/salaSeleccionada.png')
 		game.load.image('salonFama_Chat', 'assets/images/salonFama_Chat.png')
 		game.load.image('enviar', 'assets/images/enviar.png')
+		game.load.image('cuadradoRoyale','assets/images/cuadrado_royale.png')
+		game.load.image('municion','assets/images/municion.png')
 	},
 
 	create : function() {

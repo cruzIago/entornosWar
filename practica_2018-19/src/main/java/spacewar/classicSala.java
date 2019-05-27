@@ -18,6 +18,10 @@ public class classicSala extends SalaObject {
 	private final int SALUD_CLASICO = 100;
 	private final int MUNICION_INICIAL = 30;
 
+	private final int tiempo_entre_municion = 350;
+	private int tiempo_hasta_municion = 0;
+	private final int MAXIMA_MUNICION = 20;
+	
 	private final int FPS = 30;
 	private final int TICK_DELAY = 1000 / FPS;
 
@@ -40,6 +44,8 @@ public class classicSala extends SalaObject {
 
 		for (Player player : getPlayers()) {
 			player.incrementPartidasJugadas();
+			player.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),
+					(Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
 			player.setVidas(VIDAS_CLASICO);
 			player.setSalud(SALUD_CLASICO);
 			player.setMunicion(MUNICION_INICIAL);
@@ -73,16 +79,19 @@ public class classicSala extends SalaObject {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodePlayers = mapper.createArrayNode();
 		ArrayNode arrayNodeProjectiles = mapper.createArrayNode();
+		ArrayNode arrayNodeMuniciones = mapper.createArrayNode();
 
 		long thisInstant = System.currentTimeMillis();
 		Set<Integer> bullets2Remove = new HashSet<>();
+		Set<Integer> municion2Remove = new HashSet<>();
+		boolean removeMunicion = false;
 		boolean removeBullets = false;
 
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
 
-				player.calculateMovement(X_BOUNDS, Y_BOUNDS);
+				player.calculateMovement(X_BOUNDS, Y_BOUNDS,0,0);
 
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
@@ -153,9 +162,51 @@ public class classicSala extends SalaObject {
 			if (removeBullets)
 				this.getProjectiles().keySet().removeAll(bullets2Remove);
 
+			// para eliminar la municion recogida
+			for(Municion munition : getMuniciones().values()) {
+				for(Player player : getPlayers()) {
+					if(!munition.getIsHit() &&player.intersect(munition)) {
+						munition.setIsHit(true);
+						//Si al recoger la municion, tendría una mayor munición de la máxima, se le asigna la máxima, si no se suma el valor
+						player.setMunicion(player.getMunicion()+MAXIMA_MUNICION > MUNICION_INICIAL ? MUNICION_INICIAL : player.getMunicion()+MAXIMA_MUNICION );
+						break;
+					}
+				}
+
+				ObjectNode jsonMunicion = mapper.createObjectNode();
+				jsonMunicion.put("id", munition.getId());
+				jsonMunicion.put("posX", munition.getPosX());
+				jsonMunicion.put("posY", munition.getPosY());
+				if(!munition.getIsHit()) {
+					jsonMunicion.put("isAlive", true);
+					arrayNodeMuniciones.addPOJO(jsonMunicion);
+				}else {
+					removeMunicion=true;
+					municion2Remove.add(munition.getId());
+					jsonMunicion.put("isAlive", false);
+				}
+
+				arrayNodeMuniciones.addPOJO(jsonMunicion);
+			}
+
+			if (removeMunicion) {
+				this.getMuniciones().keySet().removeAll(municion2Remove);
+			}
+
+			tiempo_hasta_municion += (FPS / 10);
+			// Creamos la municion, posicionamos en el mapa y comprobamos quien la coje
+			if (tiempo_hasta_municion >= tiempo_entre_municion && obtenerIdMunicion() < MAXIMA_MUNICION) {
+				tiempo_hasta_municion=0;
+				Municion municion = new Municion(obtenerIdMunicionYSumar());
+				municion.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),
+						(Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
+				addMunicion(municion.getId(), municion);
+			}
+			
 			json.put("event", "GAME STATE UPDATE");
 			json.putPOJO("players", arrayNodePlayers);
 			json.putPOJO("projectiles", arrayNodeProjectiles);
+			json.putPOJO("municiones", arrayNodeMuniciones);
 
 			this.broadcast(json.toString());
 		} catch (Throwable ex) {

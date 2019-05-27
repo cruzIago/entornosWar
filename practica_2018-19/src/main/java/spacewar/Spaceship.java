@@ -40,7 +40,7 @@ public class Spaceship extends SpaceObject {
 		this.lastMovement.rotRight = rotRight;
 	}
 
-	public void calculateMovement(int xBound,int yBound) {
+	public void calculateMovement(double xBound,double yBound,double initialX, double initialY) {
 		this.multVelocity(SPACE_FRICTION);
 
 		if (this.lastMovement.thrust) {
@@ -60,7 +60,7 @@ public class Spaceship extends SpaceObject {
 			this.incFacingAngle(SPACESHIP_ROTATION_SPEED);
 		}
 
-		this.applyVelocity2Position(xBound,yBound);
+		this.applyVelocity2Position(xBound,yBound,initialX,initialY);
 
 		lastMovement = new LastMovement();
 	}

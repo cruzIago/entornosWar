@@ -175,6 +175,7 @@ public class SpacewarGame {
 			}
 		}
 	}
+	
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodeSalas = mapper.createArrayNode();
