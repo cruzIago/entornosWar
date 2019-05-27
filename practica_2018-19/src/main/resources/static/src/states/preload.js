@@ -34,6 +34,9 @@ Spacewar.preloadState.prototype = {
 		game.load.image('enviar', 'assets/images/enviar.png')
 		game.load.image('cuadradoRoyale','assets/images/cuadrado_royale.png')
 		game.load.image('municion','assets/images/municion.png')
+		game.load.image('nave_victoria','assets/images/naveVictoria.png')
+		game.load.image('nave_derrota','assets/images/naveDerrota.png')
+		game.load.image('menu','assets/images/menu.png')
 	},
 
 	create : function() {

@@ -17,27 +17,35 @@ Spacewar.postGameState.prototype = {
 	},
 
 	preload : function() {
-
+		fondo = game.add.sprite(0, 0, 'fondoConLogo')
 	},
 
 	create : function() {
-		bMenu = game.add.button(640, 600, 'enviar', irMenuClick, this);
+		bMenu = game.add.button(500, 350, 'menu', irMenuClick, this);
 		bMenu.onInputOver.add(over, {
 			button : bMenu
 		});
 		bMenu.onInputOut.add(out, {
 			button : bMenu
 		});
-
-		textoPuntuacion = game.add.text(800, 100, this.puntuacion, {
+		
+		cuadroPuntuacionMedia = game.add.sprite(800, 100, 'salonFama_Chat')
+		
+		textoPuntuacion = game.add.text(875, 250, this.puntuacion, {
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
 
-		textoMedia = game.add.text(800, 300, this.media, {
+		textoMedia = game.add.text(975, 400, this.media, {
 			font : "30px Arial",
 			fill : "#ffffff"
 		})
+		
+		if (this.isGanador) {
+			imagenFinal = game.add.sprite(75, 150, 'nave_victoria')
+		} else {
+			imagenFinal = game.add.sprite(75, 150, 'nave_derrota')
+		}
 
 	},
 

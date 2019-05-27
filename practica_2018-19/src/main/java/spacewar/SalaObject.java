@@ -205,7 +205,7 @@ public class SalaObject {
 				player.incrementPartidasGanadas();
 			}
 			player.updateMedia();
-			puntuacion_final="Terminaste en el puesto "+playersSala.size();
+			puntuacion_final="Puesto: "+playersSala.size()+" de "+NJUGADORES;
 			ObjectNode json = mapper.createObjectNode();
 			//Se le envia a los jugadores su puntuacion/posicion en la partida y su nueva media
 			json.put("event", "END GAME");
