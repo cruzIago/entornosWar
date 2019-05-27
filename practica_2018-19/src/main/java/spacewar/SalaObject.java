@@ -204,7 +204,7 @@ public class SalaObject {
 			if (isWinner) {
 				player.incrementPartidasGanadas();
 			}
-			player.updateMedia();
+			player.updateMedia(); 
 			puntuacion_final="Puesto: "+playersSala.size()+" de "+NJUGADORES;
 			ObjectNode json = mapper.createObjectNode();
 			//Se le envia a los jugadores su puntuacion/posicion en la partida y su nueva media

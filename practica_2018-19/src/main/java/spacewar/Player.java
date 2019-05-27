@@ -65,7 +65,7 @@ public class Player extends Spaceship {
 	}
 
 	public void updateMedia() { //media conseguida apartir de las victorias y los disparos acertados
-		media = ((disparosAcertados / disparosRealizados) + (partidasGanadas / partidasJugadas)) / 2;
+		media = ((disparosAcertados / disparosRealizados) + (partidasGanadas / partidasJugadas)) / 2.0f;
 	}
 
 	public int getSalud() {

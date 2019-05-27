@@ -68,7 +68,7 @@ Spacewar.gameState.prototype = {
 			fill : "#ffffff"
 		});
 
-		game.global.myPlayer.ammo = game.add.text(150, 600, "30/30", {
+		game.global.myPlayer.ammo = game.add.text(100, 600, "30/30", {
 			font : "30px Arial",
 			fill : "#ffffff"
 		});

@@ -31,12 +31,12 @@ Spacewar.postGameState.prototype = {
 		
 		cuadroPuntuacionMedia = game.add.sprite(800, 100, 'salonFama_Chat')
 		
-		textoPuntuacion = game.add.text(875, 250, this.puntuacion, {
+		textoPuntuacion = game.add.text(885, 250, this.puntuacion, {
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
-
-		textoMedia = game.add.text(975, 400, this.media, {
+		
+		textoMedia = game.add.text(885, 400, "Nivel de jugador\n          "+this.media, {
 			font : "30px Arial",
 			fill : "#ffffff"
 		})

@@ -129,8 +129,8 @@ window.onload = function() {
 						game.global.myPlayer.life.x = player.posX
 						game.global.myPlayer.life.y = player.posY - game.global.myPlayer.image.height/1.5
 						game.global.myPlayer.life.text = player.vida + "%"
-						game.global.myPlayer.ammo.text = player.municion + "/" + game.global.myPlayer.initialAmmo
-						game.global.myPlayer.fuel.text = player.fuel
+						game.global.myPlayer.ammo.text = "Munición: "+player.municion + "/" + game.global.myPlayer.initialAmmo
+						game.global.myPlayer.fuel.text = "Fuel: "+player.fuel+"%"
 						
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {

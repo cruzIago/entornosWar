@@ -121,10 +121,23 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 
 			case "UPDATE MOVEMENT":
+				if(node.path("movement").get("thrust").asBoolean()) {
+					player.setFuel(player.getFuel()-1 < 0 ? 0:player.getFuel()-1);
+				}else {
+					player.setFuel(player.getFuel()+1 >100? 100:player.getFuel()+1);
+				}
+				
+				if(player.getFuel()>0) {
 				player.loadMovement(node.path("movement").get("thrust").asBoolean(),
 						node.path("movement").get("brake").asBoolean(),
 						node.path("movement").get("rotLeft").asBoolean(),
 						node.path("movement").get("rotRight").asBoolean());
+				}else {
+					player.loadMovement(false,
+							node.path("movement").get("brake").asBoolean(),
+							node.path("movement").get("rotLeft").asBoolean(),
+							node.path("movement").get("rotRight").asBoolean());
+				}
 				break;
 				
 			case "SHOOT":

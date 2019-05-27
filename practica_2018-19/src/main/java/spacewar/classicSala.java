@@ -17,7 +17,7 @@ public class classicSala extends SalaObject {
 	private final int VIDAS_CLASICO = 3;
 	private final int SALUD_CLASICO = 100;
 	private final int MUNICION_INICIAL = 30;
-
+	private final int FUEL_INICIAL=100;
 	private final int tiempo_entre_municion = 350;
 	private int tiempo_hasta_municion = 0;
 	private final int MAXIMA_MUNICION = 20;
@@ -46,6 +46,7 @@ public class classicSala extends SalaObject {
 			player.incrementPartidasJugadas();
 			player.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),
 					(Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
+			player.setFuel(FUEL_INICIAL);
 			player.setVidas(VIDAS_CLASICO);
 			player.setSalud(SALUD_CLASICO);
 			player.setMunicion(MUNICION_INICIAL);
@@ -90,9 +91,9 @@ public class classicSala extends SalaObject {
 		try {
 			// Update players
 			for (Player player : getPlayers()) {
-
+				
 				player.calculateMovement(X_BOUNDS, Y_BOUNDS,0,0);
-
+				
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
