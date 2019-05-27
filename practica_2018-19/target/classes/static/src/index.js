@@ -67,6 +67,7 @@ window.onload = function() {
 			game.global.nombreJugador = msg.nombreJugador
 			game.global.response = true;			
 			break
+			
 		case 'JOIN':
 			if (game.global.DEBUG_MODE) {
 				console.log('[DEBUG] JOIN message recieved')
@@ -78,6 +79,7 @@ window.onload = function() {
 				console.log('[DEBUG] ID assigned to player: ' + game.global.myPlayer.id)
 			}
 			break
+			
 		case 'NEW ROOM' :
 			if (game.global.DEBUG_MODE) {
 				console.log('[DEBUG] NEW ROOM message recieved')
@@ -92,9 +94,23 @@ window.onload = function() {
 					yBounds: msg.yBounds
 			}
 			break
+			
+		case 'MATCHMAKING FAIL':
+			game.global.cancelMatchmaking();
+			break
+			
+		case 'CANCEL SALA BY HOST':
+			game.global.targetSala(msg.indiceSala);
+			break
+		
+		case 'MATCHMAKING SUCCESS':
+			game.global.targetSala(msg.indiceSala);
+			break
+			
 		case 'SALAS LIMIT':
 			game.global.response=true;
 			break
+			
 		case 'GAME STATE UPDATE' :
 			if (game.global.DEBUG_MODE) {
 				console.log('[DEBUG] GAME STATE UPDATE message recieved')

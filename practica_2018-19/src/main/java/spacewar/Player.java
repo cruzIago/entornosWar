@@ -18,6 +18,7 @@ public class Player extends Spaceship {
 	private int disparosRealizados;
 	private int disparosAcertados;
 	private float media;
+	private Thread playerThread;
 
 	// Variables Ingame
 	private int salud;
@@ -30,13 +31,22 @@ public class Player extends Spaceship {
 		this.session = session;
 		this.shipType = this.getRandomShipType();
 		this.inMatch = false;
-		this.media = 0.5f;
+		this.media = 0.3f;
 		this.partidasJugadas = 0;
 		this.partidasGanadas = 0;
 		this.disparosAcertados = 0;
 		this.disparosRealizados = 0;
 	}
 
+	//gestion Thread de union o salida de la sala
+	public void setThread(Thread playerThread) {
+		this.playerThread = playerThread;
+	}
+	
+	public Thread getThread() {
+		return this.playerThread;
+	}
+	
 	// gestion media
 	public void incrementPartidasJugadas() {
 		partidasJugadas++;

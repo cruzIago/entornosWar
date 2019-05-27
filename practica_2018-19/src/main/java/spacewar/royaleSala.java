@@ -32,8 +32,8 @@ public class royaleSala extends SalaObject {
 	private int tiempo_hasta_municion = 0;
 	private final int MAXIMA_MUNICION = 20;
 
-	public royaleSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
-		super(NJUGADORES, MODOJUEGO, NOMBRE, creador);
+	public royaleSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR, int INDICE) {
+		super(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR, INDICE);
 		borde_x = X_BOUNDS;
 		borde_y = Y_BOUNDS;
 	}

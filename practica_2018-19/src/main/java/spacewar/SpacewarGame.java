@@ -1,12 +1,15 @@
 package spacewar;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,22 +34,23 @@ public class SpacewarGame {
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
 	public final static int MAXTHREADS = 100;
-	public final static int NLEVELS = 3;//rangos de nivel de jugadores para matchmaking
 
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// GLOBAL GAME ROOM
-	public SalaObject[] matchmaking = new SalaObject[NLEVELS];
-	public SalaObject[] salas = new SalaObject[MAXSALAS];
-	private Deque<String> chat = new ArrayDeque<String>();
+	public SalaObject[] salas = new SalaObject[MAXSALAS]; // necesitamos agilizar las lecturas y
+															// las pocas escrituras estan protegidas con sinchronized,
+															// para que estas no requieren copiar todo de nuevo
+															// además, necesitamos controlar su tamaño maximo
+	private Deque<String> chat = new ArrayDeque<String>();// necesitamos que esten ordenados por llegada y no usamos
+															// blockindeque pues necesitamos controlar el tamaño
 	public ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<String, Thread>();
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
 
 	private SpacewarGame() {
-
 	}
 
 	// gestion chat
@@ -62,12 +66,40 @@ public class SpacewarGame {
 		int indiceSalaLibre = getSalaLibre();
 		if (indiceSalaLibre != -1) {
 			if (MODOJUEGO.equals("Classic")) {
-				salas[indiceSalaLibre] = new classicSala(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
+				salas[indiceSalaLibre] = new classicSala(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR, indiceSalaLibre);
 			} else if (MODOJUEGO.equals("Battle Royal")) {
-				salas[indiceSalaLibre] = new royaleSala(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR);
+				salas[indiceSalaLibre] = new royaleSala(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR, indiceSalaLibre);
 			}
 		}
 		return indiceSalaLibre;
+	}
+
+	public synchronized boolean joinSalaMatchmaking(Player player) {
+		ObjectNode msg = mapper.createObjectNode();
+		for (SalaObject sala : salas) {
+			if (sala != null) {
+				float media = sala.getMediaSala();
+				float pMedia = player.getMedia();
+				if (((0 <= media && media < 0.2f) && (0 <= pMedia && pMedia < 0.2f))
+						|| ((0.2 <= media && media <= 0.4) && (0.2 <= pMedia && pMedia <= 0.4))
+						|| ((0.4 < media && media <= 1) && (0.4 < pMedia && pMedia <= 1))) {
+					try {
+						msg.put("event", "MATCHMAKING SUCCESS");
+						msg.put("indiceSala", sala.getIndice());
+						player.getSession().sendMessage(new TextMessage(msg.toString()));
+					} catch (IOException e) {
+					}
+					sala.joinSala(player);
+					return true;
+				}
+			}
+		}
+		try {
+			msg.put("event", "MATCHMAKING FAIL");
+			player.getSession().sendMessage(new TextMessage(msg.toString()));
+		} catch (IOException e) {
+		}
+		return false;
 	}
 
 	private int getSalaLibre() {// Comprueba el primer indice de salas que esté libre
@@ -82,6 +114,18 @@ public class SpacewarGame {
 	public void removeSala(String NOMBRE) {
 		for (int i = 0; i < salas.length; i++) {
 			if (salas[i] != null && salas[i].getCreador().equals(NOMBRE)) {
+				salas[i].drainPermitsOfSala();
+				for (Player player : salas[i].getPlayers()) {
+					if (!player.getNombre().equals(salas[i].getCreador())) {
+						try {
+							ObjectNode msg = mapper.createObjectNode();
+							msg.put("event", "CANCEL SALA BY HOST");
+							msg.put("indiceSala", i);
+							player.getSession().sendMessage(new TextMessage(msg.toString()));
+						} catch (IOException e) {
+						}
+					}
+				}
 				salas[i] = null;
 			}
 		}
@@ -158,24 +202,25 @@ public class SpacewarGame {
 			}
 		}
 	}
-	
+
 	private ObjectNode putSalaNull() {
 		ObjectNode jsonSala = mapper.createObjectNode();
 		jsonSala.put("nPlayers", 0);
 		jsonSala.put("nombre", "");
 		jsonSala.put("modoJuego", "");
-		jsonSala.put("inProgress",false);
+		jsonSala.put("inProgress", false);
 		return jsonSala;
 	}
 
 	public void checkAndRemoveSalas() {
-		for(int i=0;i<salas.length;i++) {
-			if(salas[i]!=null && salas[i].getNumPlayersSala()<=0) {
-				salas[i]=null;
+		for (int i = 0; i < salas.length; i++) {
+			if (salas[i] != null && salas[i].getNumberPlayersWaiting() <= 0) {
+				int j;
+				j = salas[i].getNumberPlayersWaiting();
+				salas[i] = null;
 			}
 		}
 	}
-	
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodeSalas = mapper.createArrayNode();
@@ -183,7 +228,7 @@ public class SpacewarGame {
 
 		for (SalaObject sala : salas) {
 			if (sala != null) {
-				if (sala.getNumPlayersSala() > 0) {
+				if (sala.getNumberPlayersWaiting() > 0) {
 					ObjectNode jsonSala = mapper.createObjectNode();
 					jsonSala.put("nPlayers", sala.getNumberPlayersWaiting());
 					jsonSala.put("nombre", sala.getNombreSala());
@@ -197,9 +242,9 @@ public class SpacewarGame {
 				arrayNodeSalas.addPOJO(putSalaNull());
 			}
 		}
-		
+
 		checkAndRemoveSalas();
-		
+
 		Iterator<String> chatI = chat.iterator();
 		for (int i = 0; i < MAXLINECHAT; i++) {
 			if (chatI.hasNext()) {

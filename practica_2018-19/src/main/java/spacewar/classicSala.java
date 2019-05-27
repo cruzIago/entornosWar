@@ -25,8 +25,8 @@ public class classicSala extends SalaObject {
 	private final int FPS = 30;
 	private final int TICK_DELAY = 1000 / FPS;
 
-	public classicSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
-		super(NJUGADORES, MODOJUEGO, NOMBRE, creador);
+	public classicSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador, int INDICE) {
+		super(NJUGADORES, MODOJUEGO, NOMBRE, creador, INDICE);
 	}
 
 	@Override
