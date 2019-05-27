@@ -19,14 +19,15 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SalaObject {
-	private CyclicBarrier nPlayers;
 	private Semaphore aforo; // Necesario para control de salas, de aforo
+	private Semaphore barrera;
 	private Map<String, Player> playersSala = new ConcurrentHashMap<>();
-	private Runnable ePartida = (() -> startGameLoop());
 
 	private final String MODOJUEGO;
+	private final int NJUGADORES;
 	private final String NOMBRE;
 	private final String CREADOR;
+	private final int INDICE;
 	private final static int FPS = 30;
 	private final static long TICK_DELAY = 1000 / FPS;
 	private boolean inProgress;
@@ -37,16 +38,25 @@ public class SalaObject {
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
-		this.nPlayers = new CyclicBarrier(NJUGADORES, ePartida);
+	public SalaObject(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador, int INDICE) {
+		this.NJUGADORES = NJUGADORES;
+		this.barrera = new Semaphore(0);
 		this.aforo = new Semaphore(NJUGADORES);
 		this.MODOJUEGO = MODOJUEGO;
 		this.NOMBRE = NOMBRE;
 		this.CREADOR = creador.getNombre();
 		this.inProgress = false;
 		this.mediaSala = creador.getMedia();
+		this.INDICE = INDICE;
 	}
-
+	
+	public int getIndice() {
+		return INDICE;
+	}
+	
+	public float getMediaSala() {
+		return mediaSala;
+	}
 
 	public boolean isInProgress() {
 		return inProgress;
@@ -64,34 +74,34 @@ public class SalaObject {
 		return CREADOR;
 	}
 	
-	public synchronized int getNumberPlayersWaiting() {
-		return nPlayers.getNumberWaiting();
+	public int getNumberPlayersWaiting() {
+		return this.NJUGADORES - aforo.availablePermits();
+	}
+	
+	public void drainPermitsOfSala() {
+		aforo.drainPermits();
 	}
 
 	public void joinSala(Player player) {
 		try {
-			if (!nPlayers.isBroken() && aforo.tryAcquire(100, TimeUnit.MILLISECONDS)) {
+			if (aforo.tryAcquire(100, TimeUnit.MILLISECONDS)) {
 				playersSala.put(player.getSession().getId(), player);
-				nPlayers.await();
+				if (aforo.availablePermits() == 0) {
+					barrera.release(this.NJUGADORES-1);
+					this.startGameLoop();
+				} else {
+					barrera.acquire();
+				}
 			}
 		} catch (InterruptedException e) {
 			if (!this.CREADOR.equals(player.getNombre())) {
-				removePlayer(player);
+				this.removePlayer(player);
 				aforo.release();
 			} else {
 				aforo.drainPermits(); // El creador deja sin permisos a la sala para evitar unirse
-				removePlayer(player);
-				nPlayers.reset();
+				this.removePlayer(player);
 			}
-		} catch (BrokenBarrierException e) {
-			// TODO Auto-generated catch block
-			removePlayer(player);
-		} finally {
 		}
-	}
-	
-	public int getNumPlayersSala() {
-		return playersSala.size();
 	}
 
 	public void removePlayer(Player player) {
@@ -101,7 +111,7 @@ public class SalaObject {
 		if (playersSala.size() ==0) {
 			//Por si se va el ganador de la partida al mismo tiempo
 			this.stopGameLoop();
-		}else if(playersSala.size()==1) {
+		}else if(playersSala.size()==1 && inProgress == true) {
 			//El ganador de la partida
 			endGame(playersSala.values().iterator().next(),true);
 			playersSala.remove(playersSala.values().iterator().next().getSession().getId());
@@ -210,7 +220,7 @@ public class SalaObject {
 					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
 						player.setSalud(player.getSalud() - projectile.getDamage());
 						if (player.getSalud() <= 0) {
-							removePlayer(player);
+							this.removePlayer(player);
 						}
 
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");

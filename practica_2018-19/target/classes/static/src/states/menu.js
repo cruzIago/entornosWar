@@ -61,14 +61,15 @@ Spacewar.menuState.prototype = {
 				if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
 					if (game.global.salas[i].inProgress) {
 						bSalas[i].getChildAt(0).text = 'En progreso';
+						bSalas[i].getChildAt(2).visible = false;
 					}else {
 						bSalas[i].getChildAt(0).text = game.global.salas[i].nombre;
-						bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
 						bSalas[i].getChildAt(2).visible = true;
 					}
 					bSalas[i].getChildAt(0).visible = true;
 					bSalas[i].getChildAt(1).text = game.global.salas[i].modoJuego;
 					bSalas[i].getChildAt(1).visible = true;
+					bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
 				}
 			}
 			for(var i = 0; i < bChat.children.length; i++){
@@ -77,6 +78,16 @@ Spacewar.menuState.prototype = {
 				}
 			}
 			}
+		}
+		
+		game.global.cancelMatchmaking = function() {
+			bMatchmaking.tint = tintAzul
+			buscando.visible = false
+			bCrearSala.visible = true
+		}
+		
+		game.global.targetSala = function(indice) {
+			salaTarget(indice)
 		}
 	},
 
@@ -148,7 +159,7 @@ Spacewar.menuState.prototype = {
 			let textModo = game.add.text(60,45,'',{font:"16px Arial",fill:"#ffffff"});
 			textModo.visible = false;
 			bSalas[i].addChild(textModo);
-			let textNJugadores = game.add.text(190,50,'',{font:"16px Arial",fill:"#ffffff"});
+			let textNJugadores = game.add.text(185,50,'',{font:"16px Arial",fill:"#ffffff"});
 			textNJugadores.visible = false;
 			bSalas[i].addChild(textNJugadores);
 			
@@ -159,6 +170,11 @@ Spacewar.menuState.prototype = {
 		aviso.visible = false;
 		
 		//control escritura
+		game.input.keyboard.removeKey(Phaser.Keyboard.W);
+		game.input.keyboard.removeKey(Phaser.Keyboard.S);
+		game.input.keyboard.removeKey(Phaser.Keyboard.D);
+		game.input.keyboard.removeKey(Phaser.Keyboard.A);
+		game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);﻿
 		game.input.keyboard.addCallbacks(this, null, null, keyPressMenu);
 		remove = game.input.keyboard.addKey(Phaser.Keyboard.BACKSPACE);
 	    remove.onDown.add(removePressMenu, this);
@@ -237,17 +253,10 @@ function matchmakingClick() {
 	if (bMatchmaking.tint === tintAzul && isAnyButtonSalaPress == false) {
 		bMatchmaking.tint = tintRojo
 		msg.event = 'MATCHMAKING'
-			msg.nombre = game.global.nombreJugador
-			game.global.socket.send(JSON.stringify(msg))
+		msg.nombre = game.global.nombreJugador
+		game.global.socket.send(JSON.stringify(msg))
 		bCrearSala.visible = false
 		buscando.visible = true
-	} else {
-		bMatchmaking.tint = tintAzul
-		msg.event = 'CANCEL MATCHMAKING'
-			msg.nombre = game.global.nombreJugador
-			game.global.socket.send(JSON.stringify(msg))
-		buscando.visible = false
-		bCrearSala.visible = true
 	}
 }
 
@@ -322,7 +331,7 @@ function modoBattleRoyalClick() {
 }
 
 function salaClick() {
-	if (this.button.tint === tintAzul && this.button.getChildAt(0).text !== '' && this.button.getChildAt(0).text !== 'En progreso') {
+	if (bMatchmaking.tint === tintNot && this.button.tint === tintAzul && this.button.getChildAt(0).text !== '' && this.button.getChildAt(0).text !== 'En progreso') {
 		isAnyButtonSalaPress = true;
 		for (var bSala of bSalas) {
 			bSala.visible = false
@@ -334,7 +343,27 @@ function salaClick() {
 		this.button.tint = tintRojo
 	} else {
 		isAnyButtonSalaPress = true;
+		msg.event = 'EXIT SALA'
+		msg.indiceSala = this.button.indiceSala
+		game.global.socket.send(JSON.stringify(msg))
 		this.button.tint = tintAzul
+		for (var bSala of bSalas) {
+			bSala.visible = true
+		}
+	}
+}
+
+function salaTarget(indice) {//partida encontrada por matchmaking
+	if (bSalas[indice].tint === tintNot || bSalas[indice].tint === tintAzul) {
+		isAnyButtonSalaPress = true;
+		for (var bSala of bSalas) {
+			bSala.visible = false
+		}
+		bSalas[indice].visible = true
+		bSalas[indice].tint = tintRojo
+	} else {
+		isAnyButtonSalaPress = true;
+		bSalas[indice].tint = tintNot
 		for (var bSala of bSalas) {
 			bSala.visible = true
 		}

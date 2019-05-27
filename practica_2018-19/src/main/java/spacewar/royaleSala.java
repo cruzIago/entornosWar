@@ -26,8 +26,8 @@ public class royaleSala extends SalaObject {
 	private final int TIEMPO_CIERRE = 1;
 	private double tiempo_entre_cierre = 0;
 
-	public royaleSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player creador) {
-		super(NJUGADORES, MODOJUEGO, NOMBRE, creador);
+	public royaleSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR, int INDICE) {
+		super(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR, INDICE);
 		borde_x = X_BOUNDS;
 		borde_y = Y_BOUNDS;
 	}

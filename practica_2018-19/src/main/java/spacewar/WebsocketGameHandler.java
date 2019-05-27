@@ -38,6 +38,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		try {
 			JsonNode node = mapper.readTree(message.getPayload());
 			ObjectNode msg = mapper.createObjectNode();
+			int indiceSala;
+			Thread newThread;
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 
 			switch (node.get("event").asText()) {
@@ -66,11 +68,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				
 			//gestion matchmaking
 			case "MATCHMAKING":
-				
-				break;
-				
-			case "CANCEL MATCHMAKING":
-				
+				Thread newJoinMatchmakingThread = new Thread(()->game.joinSalaMatchmaking(player));
+				game.threads.put(player.getNombre(), newJoinMatchmakingThread);
+				newJoinMatchmakingThread.start();
 				break;
 				
 			//gestion chat
@@ -82,7 +82,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "NEW SALA":
 				int indiceSalaLibre = game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player);
 				if (indiceSalaLibre != -1) {
-					Thread newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
+					newThread = new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
 					player.setSala(indiceSalaLibre);
 					game.threads.put(player.getNombre(), newThread);
 					newThread.start();
@@ -94,11 +94,18 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 				
 			case "JOIN SALA":
-				int indiceSala = node.get("indiceSala").asInt();
+				indiceSala = node.get("indiceSala").asInt();
 				player.setSala(indiceSala);
-				Thread newJoinThread = new Thread(()->game.salas[indiceSala].joinSala(player));
-				game.threads.put(player.getNombre(), newJoinThread);
-				newJoinThread.start();
+				player.setThread(new Thread(()->game.salas[indiceSala].joinSala(player)));;
+				game.threads.put(player.getNombre(), player.getThread());
+				player.getThread().start();
+				break;
+			
+			case "EXIT SALA":
+				Thread otro = game.threads.get(player.getNombre());
+				otro.interrupt();
+				/*indiceSala = node.get("indiceSala").asInt();
+				player.getThread().interrupt();*/
 				break;
 				
 			case "CANCEL SALA":
@@ -146,6 +153,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 		game.removeNombre(player.getNombre());
 		game.removePlayer(player);
+		game.removeSala(player.getNombre());
 
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "REMOVE PLAYER");
