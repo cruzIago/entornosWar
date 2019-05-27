@@ -24,7 +24,7 @@ public class Player extends Spaceship {
 	private int salud;
 	private int municion;
 	private int vidas;
-	private int fuel;
+	private double fuel;
 
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
@@ -76,11 +76,11 @@ public class Player extends Spaceship {
 		this.salud = salud;
 	}
 
-	public void setFuel(int fuel) {
+	public void setFuel(double fuel) {
 		this.fuel = fuel;
 	}
 
-	public int getFuel() {
+	public double getFuel() {
 		return this.fuel;
 	}
 

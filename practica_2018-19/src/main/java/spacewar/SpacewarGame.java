@@ -77,7 +77,7 @@ public class SpacewarGame {
 	public synchronized boolean joinSalaMatchmaking(Player player) {
 		ObjectNode msg = mapper.createObjectNode();
 		for (SalaObject sala : salas) {
-			if (sala != null) {
+			if (sala != null && !sala.isInProgress()) {
 				float media = sala.getMediaSala();
 				float pMedia = player.getMedia();
 				if (((0 <= media && media < 0.2f) && (0 <= pMedia && pMedia < 0.2f))
@@ -186,6 +186,7 @@ public class SpacewarGame {
 			} catch (Throwable ex) {
 				System.err.println("Execption sending message to player " + player.getSession().getId());
 				ex.printStackTrace(System.err);
+				removePlayer(player);
 			}
 		}
 	}
@@ -197,6 +198,7 @@ public class SpacewarGame {
 			} catch (Throwable ex) {
 				System.err.println("Execption sending message to player " + player.getSession().getId());
 				ex.printStackTrace(System.err);
+				removePlayer(player);
 			}
 		}
 	}

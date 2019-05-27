@@ -39,6 +39,7 @@ public class classicSala extends SalaObject {
 		json.put("x_bounds", X_BOUNDS);
 		json.put("y_bounds", Y_BOUNDS);
 		json.put("municion", MUNICION_INICIAL);
+		json.put("modoJuego",  this.getModoJuego());
 
 		String message = json.toString();
 
@@ -196,7 +197,7 @@ public class classicSala extends SalaObject {
 
 			tiempo_hasta_municion += (FPS / 10);
 			// Creamos la municion, posicionamos en el mapa y comprobamos quien la coje
-			if (tiempo_hasta_municion >= tiempo_entre_municion && obtenerIdMunicion() < MAXIMA_MUNICION) {
+			if (tiempo_hasta_municion >= tiempo_entre_municion) {
 				tiempo_hasta_municion=0;
 				Municion municion = new Municion(obtenerIdMunicionYSumar());
 				municion.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),

@@ -277,7 +277,6 @@ function cancelarSala() {
 
 function empezarClick() {
 	if (bEmpezar.tint === tintAzul && bEnviar.tint === tintRojo) {
-		bEmpezar.tint = tintRojo
 		msg.event = 'EMPEZAR PARTIDA'
 		msg.creador = game.global.nombreJugador
 		msg.nombre = bNombre.getChildAt(0).text.toString()
@@ -326,7 +325,7 @@ function modoBattleRoyalClick() {
 	if (bModoClassic.tint === tintNot && bEnviar.tint === tintNot) {
 		if (bModoBattleRoyal.tint === tintAzul) {
 			msg.modo = 'Battle Royal'
-			msg.njugadores = 3
+			msg.njugadores = 10
 			bModoBattleRoyal.tint = tintRojo
 		} else {
 			bModoBattleRoyal.tint = tintAzul
@@ -345,7 +344,7 @@ function salaClick() {
 		game.global.socket.send(JSON.stringify(msg))
 		this.button.visible = true
 		this.button.tint = tintRojo
-	} else {
+	} else if (this.button.getChildAt(0).text !== 'En progreso' && this.button.getChildAt(0).text !== ''){
 		isAnyButtonSalaPress = true;
 		msg.event = 'EXIT SALA'
 		msg.indiceSala = this.button.indiceSala

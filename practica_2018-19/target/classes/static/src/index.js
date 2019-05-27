@@ -17,6 +17,7 @@ window.onload = function() {
 		response: false, 
 		isGameStarting: false,
 		gameCreated: false,
+		modoJuego: ''
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -130,7 +131,7 @@ window.onload = function() {
 						game.global.myPlayer.life.y = player.posY - game.global.myPlayer.image.height/1.5
 						game.global.myPlayer.life.text = player.vida + "%"
 						game.global.myPlayer.ammo.text = "Munición: "+player.municion + "/" + game.global.myPlayer.initialAmmo
-						game.global.myPlayer.fuel.text = "Fuel: "+player.fuel+"%"
+						game.global.myPlayer.fuel.text = "Propulsión: "+Math.trunc(player.fuel)+"%"
 						
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
@@ -194,16 +195,16 @@ window.onload = function() {
 				
 				// Hacer que recoja las puntuaciones y las ponga en un string
 				// para visualizar tanto en partida como en postpartida
-				/*if(typeof msg.resta_x !== 'undefined' && typeof msg.resta_y !== 'undefined' ){
-					if(typeof game.global.royaleBounds == 'undefined'){
+				if(typeof msg.pos_x !== 'undefined' && typeof msg.pos_y !== 'undefined' ){
+					if(typeof game.global.royaleBounds === 'undefined' && game.global.modoJuego === 'Battle Royal'){
 						game.global.royaleBounds=game.add.sprite(0,0,'cuadradoRoyale');
 					}else{
-						game.global.royaleBounds.x = game.global.royaleBounds.x+msg.resta_x;
-						game.global.royaleBounds.y = game.global.royaleBounds.y+msg.resta_y;
-						game.global.royaleBounds.width = game.global.royaleBounds.width-msg.resta_x;
-						game.global.royaleBounds.height = game.global.royaleBounds.height-msg.resta_y;
+						game.global.royaleBounds.x = msg.pos_x;
+						game.global.royaleBounds.y = msg.pos_y;
+						game.global.royaleBounds.width = msg.escalado_x;
+						game.global.royaleBounds.height = msg.escalado_y;
 					}
-				}*/
+				}
 				for(var muni of msg.municiones){
 					if(muni.isAlive){
 						game.global.municiones[muni.id].image.x=muni.posX;
@@ -222,6 +223,7 @@ window.onload = function() {
 		case 'START GAME':
 			game.global.xBounds=msg.x_bounds;
 			game.global.yBounds=msg.y_bounds;
+			game.global.modoJuego = msg.modoJuego;
 			game.global.myPlayer.initialAmmo=msg.municion;
 			game.global.isGameStarting=true;
 			break
@@ -236,10 +238,13 @@ window.onload = function() {
 				console.log('[DEBUG] REMOVE PLAYER message recieved')
 				console.dir(msg.players)
 			}
-			game.global.otherPlayers[msg.id].image.destroy()
-			game.global.otherPlayers[msg.id].text.destroy()
-			game.global.otherPlayers[msg.id].vida.destroy()
-			delete game.global.otherPlayers[msg.id]
+			
+			if (typeof game.global.otherPlayers[msg.id] !== 'undefined'){
+				game.global.otherPlayers[msg.id].image.destroy()
+				game.global.otherPlayers[msg.id].text.destroy()
+				game.global.otherPlayers[msg.id].vida.destroy()
+				delete game.global.otherPlayers[msg.id]
+			}
 		default :
 			console.dir(msg)
 			break

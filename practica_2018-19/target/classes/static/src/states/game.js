@@ -1,7 +1,7 @@
 Spacewar.gameState = function(game) {
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
-	this.maxMunicion = 20
+	this.maxMunicion = 10
 }
 
 Spacewar.gameState.prototype = {
@@ -74,7 +74,7 @@ Spacewar.gameState.prototype = {
 		});
 		game.global.myPlayer.ammo.fixedToCamera = true;
 
-		game.global.myPlayer.fuel = game.add.text(1000, 600, "100%", { 
+		game.global.myPlayer.fuel = game.add.text(900, 600, "100%", { 
 			font : "30px Arial",
 			fill : "#ffffff"
 		});
@@ -119,9 +119,11 @@ Spacewar.gameState.prototype = {
 				game.global.otherPlayers[i].vida.anchor.setTo(0.5, 0.5)
 			}
 		}
-
-		//game.global.royaleBounds = game.add.sprite(0, 0, 'cuadradoRoyale');
-
+		
+		if (game.global.modoJuego !== '' & game.global.modoJuego === 'Battle Royal') {
+			game.global.royaleBounds = game.add.sprite(0, 0, 'cuadradoRoyale');
+		}
+		
 		this.wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		this.sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
 		this.aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
