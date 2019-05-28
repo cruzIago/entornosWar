@@ -47,7 +47,6 @@ public class SpacewarGame {
 															// además, necesitamos controlar su tamaño maximo
 	private Deque<String> chat = new ArrayDeque<String>();// necesitamos que esten ordenados por llegada y no usamos
 															// blockindeque pues necesitamos controlar el tamaño
-	public ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<String, Thread>();
 	private Set<String> nombres = ConcurrentHashMap.newKeySet();
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
