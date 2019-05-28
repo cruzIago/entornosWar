@@ -102,7 +102,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 			
 			case "EMPEZAR PARTIDA":
-				game.salas[player.getSala()].startMatch();
+				if (game.salas[player.getSala()].getNumberPlayersWaiting() > 1) {
+					game.salas[player.getSala()].startMatch();
+				}
 				break;
 			
 			case "EXIT SALA":
@@ -126,7 +128,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 			case "UPDATE MOVEMENT":
 				if(node.path("movement").get("thrust").asBoolean()) {
-					player.setFuel(player.getFuel()-1 < 0 ? 0:player.getFuel()-1);
+					player.setFuel(player.getFuel()-0.5 < 0 ? 0:player.getFuel()-0.5);
 				}else {
 					player.setFuel(player.getFuel()+1 >100? 100:player.getFuel()+1);
 				}
@@ -170,7 +172,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 		game.removeNombre(player.getNombre());
 		player.getThread().interrupt();
-		game.removePlayer(player);
+		//game.removePlayer(player);
 		game.removeSala(player.getNombre());
 
 		ObjectNode msg = mapper.createObjectNode();

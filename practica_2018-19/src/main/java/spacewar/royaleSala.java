@@ -17,25 +17,24 @@ public class royaleSala extends SalaObject {
 	private final int VIDAS_ROYALE = 1;
 	private final int MUNICION_INICIAL = 30;
 	private final int SALUD_ROYALE = 100;
-
+	private final int FUEL_INICIAL = 100;
 	private final int FPS = 30;
 	private final int TICK_DELAY = 1000 / FPS;
 
-	private double borde_x;
-	private double borde_y;
-	private double resta_x, resta_y;
-	private double x_inicial, y_inicial; // Necesario para los calculos de los limites con el borde
+	private double escalado_x;
+	private double escalado_y;
+	private double x_nueva = 0.0, y_nueva = 0.0; // Necesario para los calculos de los limites con el borde
 	private double tiempo_entre_cierre = 300;
 	private double tiempo_hasta_cierre = 0;
 
 	private final int tiempo_entre_municion = 350;
 	private int tiempo_hasta_municion = 0;
 	private final int MAXIMA_MUNICION = 20;
-
+	private final int FACTOR_REAPARICION=50;
 	public royaleSala(int NJUGADORES, String MODOJUEGO, String NOMBRE, Player CREADOR, int INDICE) {
 		super(NJUGADORES, MODOJUEGO, NOMBRE, CREADOR, INDICE);
-		borde_x = X_BOUNDS;
-		borde_y = Y_BOUNDS;
+		escalado_x = X_BOUNDS;
+		escalado_y = Y_BOUNDS;
 	}
 
 	@Override
@@ -48,6 +47,7 @@ public class royaleSala extends SalaObject {
 		json.put("x_bounds", X_BOUNDS);
 		json.put("y_bounds", Y_BOUNDS);
 		json.put("municion", MUNICION_INICIAL);
+		json.put("modoJuego", this.getModoJuego());
 
 		String message = json.toString();
 
@@ -55,6 +55,7 @@ public class royaleSala extends SalaObject {
 			player.incrementPartidasJugadas();
 			player.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),
 					(Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
+			player.setFuel(FUEL_INICIAL);
 			player.setVidas(VIDAS_ROYALE);
 			player.setSalud(SALUD_ROYALE);
 			player.setMunicion(MUNICION_INICIAL);
@@ -98,7 +99,7 @@ public class royaleSala extends SalaObject {
 			// Update players
 			for (Player player : getPlayers()) {
 
-				player.calculateMovement(borde_x, borde_y, x_inicial, y_inicial);
+				player.calculateMovement(escalado_x + x_nueva, escalado_y + y_nueva, x_nueva, y_nueva);
 
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
@@ -192,25 +193,27 @@ public class royaleSala extends SalaObject {
 
 			tiempo_hasta_municion += (FPS / 10);
 			// Creamos la municion, posicionamos en el mapa y comprobamos quien la coje
-			if (tiempo_hasta_municion >= tiempo_entre_municion && obtenerIdMunicion() < MAXIMA_MUNICION) {
+			if (tiempo_hasta_municion >= tiempo_entre_municion) {
 				tiempo_hasta_municion = 0;
 				Municion municion = new Municion(obtenerIdMunicionYSumar());
-				municion.setPosition((Math.random() * (X_BOUNDS * 0.85)) + (X_BOUNDS * 0.15),
-						(Math.random() * (Y_BOUNDS * 0.85)) + (Y_BOUNDS * 0.15));
+				municion.setPosition((Math.random() * ((x_nueva+escalado_x)-FACTOR_REAPARICION*2)) + (x_nueva+FACTOR_REAPARICION),
+									(Math.random() * ((y_nueva+escalado_y)-FACTOR_REAPARICION*2)) + (y_nueva +FACTOR_REAPARICION));
 				addMunicion(municion.getId(), municion);
 			}
 
 			tiempo_hasta_cierre+= (FPS/10);
 
-			if (tiempo_hasta_cierre >= tiempo_entre_cierre && (x_inicial < borde_x && y_inicial < borde_y)) {
+			if (tiempo_hasta_cierre >= tiempo_entre_cierre && (x_nueva < escalado_x && y_nueva < escalado_y)) {
 				tiempo_entre_cierre = 0;
-				resta_x = (borde_x - (borde_x * 0.99)) / 2;
-				resta_y = (borde_y - (borde_y * 0.99)) / 2;
-				borde_x = (borde_x * 0.99) / 2;
-				borde_y = (borde_y * 0.99) / 2;
 				
-				x_inicial = x_inicial + resta_x;
-				y_inicial = y_inicial + resta_y;
+				double newTam_x = escalado_x * 0.999;
+				double newTam_y = escalado_y * 0.999;
+				
+				x_nueva = x_nueva + (escalado_x - newTam_x) / 2.0;
+				y_nueva = y_nueva + (escalado_y - newTam_y) / 2.0;
+				
+				escalado_x = newTam_x;
+				escalado_y = newTam_y;
 			}
 
 			// TERMINAR
@@ -218,8 +221,10 @@ public class royaleSala extends SalaObject {
 			json.putPOJO("players", arrayNodePlayers);
 			json.putPOJO("projectiles", arrayNodeProjectiles);
 			json.putPOJO("municiones", arrayNodeMuniciones);
-			json.put("resta_x", resta_x);
-			json.put("resta_y", resta_y);
+			json.put("pos_x", x_nueva);
+			json.put("pos_y", y_nueva);
+			json.put("escalado_x",  escalado_x);
+			json.put("escalado_y",  escalado_y);
 
 			this.broadcast(json.toString());
 		} catch (Throwable ex) {

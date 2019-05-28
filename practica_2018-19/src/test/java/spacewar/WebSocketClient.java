@@ -47,7 +47,7 @@ public class WebSocketClient {
 	}
 
 	private Session session;
-
+	
 	private OpenHandler openHandler = s -> {
 	};
 	
@@ -64,7 +64,7 @@ public class WebSocketClient {
 	public void sendMessage(String sMsg) throws IOException {
 		session.getBasicRemote().sendText(sMsg);
 	}
-
+	
 	public void onOpen(OpenHandler openHander) {
 		this.openHandler = openHander;
 	}
