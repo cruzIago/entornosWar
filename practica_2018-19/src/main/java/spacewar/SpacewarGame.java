@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,7 +36,7 @@ public class SpacewarGame {
 	public final static boolean DEBUG_MODE = true;
 	public final static boolean VERBOSE_MODE = true;
 	public final static int MAXTHREADS = 100;
-
+	public final int MAXPUNTUACIONES = 10;
 	ObjectMapper mapper = new ObjectMapper();
 	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -219,10 +221,12 @@ public class SpacewarGame {
 			}
 		}
 	}
+
 	public void tick() {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodeSalas = mapper.createArrayNode();
 		ArrayNode arrayNodeChat = mapper.createArrayNode();
+		ArrayNode arrayNodePuntuaciones = mapper.createArrayNode();
 
 		for (SalaObject sala : salas) {
 			if (sala != null) {
@@ -252,12 +256,41 @@ public class SpacewarGame {
 				arrayNodeChat.add("");
 			}
 		}
+		// Para mostrar las puntuaciones en el menu
+		Player[] play = getBetterPlayers();
+		for(int i=0;i<MAXPUNTUACIONES;i++) {
+			if(play[i]!=null) {
+			ObjectNode jsonPuntuacion = mapper.createObjectNode();
+			jsonPuntuacion.put("pos",i);
+			jsonPuntuacion.put("nombreJugador", play[i].getNombre());
+			jsonPuntuacion.put("media", play[i].getMedia());
+			arrayNodePuntuaciones.addPOJO(jsonPuntuacion);
+			}
+		}
 
 		json.put("event", "MENU STATE UPDATE");
 		json.putPOJO("salas", arrayNodeSalas);
 		json.putPOJO("chat", arrayNodeChat);
-
+		json.putPOJO("puntuaciones", arrayNodePuntuaciones);
 		this.broadcast(json.toString());
+	}
+
+	public Player[] getBetterPlayers() {
+		ArrayList<Player> play = new ArrayList<Player>(players.values());
+		Collections.sort(play, new Comparator<Player>() {
+		    @Override
+		    public int compare(Player p, Player p1) {
+		        return Float.compare(p1.getMedia(), p.getMedia());
+		    }
+		});
+		
+		Player []mejores=new Player[MAXPUNTUACIONES];
+		for(int i=0;i<MAXPUNTUACIONES;i++) {
+			if(play.size()>i) {
+			mejores[i]=play.get(i);
+			}
+		}
+		return mejores;
 	}
 
 	public void handleCollision() {

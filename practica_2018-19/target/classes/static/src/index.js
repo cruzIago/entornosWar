@@ -13,6 +13,7 @@ window.onload = function() {
 		municiones: [],
 		salas : [],
 		chat: [],
+		puntuaciones : [],
 		nombreJugador : '',
 		response: false, 
 		isGameStarting: false,
@@ -56,9 +57,23 @@ window.onload = function() {
 				}
 			}
 			
+			
+			
 			for (var lineChat of msg.chat) {
 				if(typeof lineChat !== 'undefined') {
 					game.global.chat.push(lineChat)
+				}
+			}
+			
+			for(var puntuacion of msg.puntuaciones){
+				if(typeof puntuacion.pos !=='undefined'){
+					game.global.puntuaciones[puntuacion.pos].posicion.visible=true;
+					
+					game.global.puntuaciones[puntuacion.pos].nombre.text=puntuacion.nombreJugador;
+					game.global.puntuaciones[puntuacion.pos].nombre.visible=true;
+					
+					game.global.puntuaciones[puntuacion.pos].media.text=puntuacion.media;
+					game.global.puntuaciones[puntuacion.pos].media.visible=true;
 				}
 			}
 			

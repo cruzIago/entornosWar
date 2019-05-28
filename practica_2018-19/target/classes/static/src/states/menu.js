@@ -32,6 +32,7 @@ Spacewar.menuState = function(game) {
 	this.keyPress;
 	this.isAnyButtonSalaPress;
 	this.isCreateComplete;
+	this.MAXPUNTUACIONES;
 }
 
 Spacewar.menuState.prototype = {
@@ -52,6 +53,7 @@ Spacewar.menuState.prototype = {
 		MAXCHARACTERS = 10
 		MAXLINECHAT = 16
 		MAXCHARACTERSCHAT = 30
+		MAXPUNTUACIONES = 10
 		posSalas = [[392, 135], [660, 135], [392, 220], [660, 220], [392, 305], [660, 305], [392, 390], [660, 390], [392, 475], [660, 475]]
 		//posChats = [200,220,240,260,280,300,320,340,,,,,,,]
 		game.global.updateMenu=function(){
@@ -170,6 +172,19 @@ Spacewar.menuState.prototype = {
 			textNJugadores.visible = false;
 			bSalas[i].addChild(textNJugadores);
 			
+		}
+		
+		//Para mostrar las puntuaciones
+		game.global.puntuaciones=new Array(MAXPUNTUACIONES);
+		let posTexto=230;
+		for (var i = 0;i<MAXPUNTUACIONES;i++){
+			game.global.puntuaciones[i]={}
+			game.global.puntuaciones[i].posicion=game.add.text(940,posTexto+(i*28),(i+1)+'',{font:"21px Arial",fill:"#ffffff"})
+			game.global.puntuaciones[i].nombre=game.add.text(980,posTexto+(i*28),'- '+'WWWWWWWWWW',{font:"21px Arial",fill:"#ffffff"})
+			game.global.puntuaciones[i].media=game.add.text(1190,posTexto+(i*28),' - 0.5',{font:"21px Arial",fill:"#ffffff"})
+			game.global.puntuaciones[i].posicion.visible=false;
+			game.global.puntuaciones[i].nombre.visible=false;
+			game.global.puntuaciones[i].media.visible=false;
 		}
 		
 		//Avisos

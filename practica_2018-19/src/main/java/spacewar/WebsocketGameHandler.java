@@ -83,7 +83,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				int indiceSalaLibre = game.createSala(node.get("njugadores").asInt(),node.get("modo").asText(),node.get("nombre").asText(), player);
 				if (indiceSalaLibre != -1) {
 					player.setSala(indiceSalaLibre);
-					player.setThread(new Thread(()->game.salas[indiceSalaLibre].joinSala(player)));
+					Thread nuevoHilo=new Thread(()->game.salas[indiceSalaLibre].joinSala(player));
+					player.setThread(nuevoHilo);
 					game.threads.put(player.getNombre(), player.getThread());
 					player.getThread().start();
 					player.getThread().join(100);
