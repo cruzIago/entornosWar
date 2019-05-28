@@ -29,8 +29,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		msg.put("id", player.getPlayerId());
 		msg.put("shipType", player.getShipType());
 		player.getSession().sendMessage(new TextMessage(msg.toString()));
-
-		// game.addPlayer(player);
 	}
 
 	@Override
@@ -53,6 +51,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				
 			case "ADD PLAYER":
 				game.addPlayer(player);
+				break;
 				
 			case "JOIN":
 				msg.put("event", "JOIN");
@@ -60,12 +59,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("shipType", player.getShipType());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
-				
-			/*case "NEW GAME":
-				game.setGame(node.get("kind").asText());
-				game
-				break;*/
-				
+
 			//gestion matchmaking
 			case "MATCHMAKING":
 				Thread newJoinMatchmakingThread = new Thread(()->game.joinSalaMatchmaking(player));
