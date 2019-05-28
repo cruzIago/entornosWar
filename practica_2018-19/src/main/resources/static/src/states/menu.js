@@ -56,27 +56,31 @@ Spacewar.menuState.prototype = {
 		//posChats = [200,220,240,260,280,300,320,340,,,,,,,]
 		game.global.updateMenu=function(){
 			if (game.global.isGameStarting === false && isCreateComplete) {
-			var text;
-			for(var i=0;i<bSalas.length;i++){
-				if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
-					if (game.global.salas[i].inProgress) {
-						bSalas[i].getChildAt(0).text = 'En progreso';
-						bSalas[i].getChildAt(2).visible = false;
-					}else {
-						bSalas[i].getChildAt(0).text = game.global.salas[i].nombre;
-						bSalas[i].getChildAt(2).visible = true;
+				var text;
+				for(var i=0;i<bSalas.length;i++){
+					if(game.global.salas.length>i && typeof game.global.salas!=='undefined'){
+						if (game.global.salas[i].inProgress) {
+							bSalas[i].getChildAt(0).text = 'En progreso';
+							bSalas[i].getChildAt(2).visible = false;
+						}else {
+							bSalas[i].getChildAt(0).text = game.global.salas[i].nombre;
+							bSalas[i].getChildAt(2).visible = true;
+						}
+						bSalas[i].getChildAt(0).visible = true;
+						bSalas[i].getChildAt(1).text = game.global.salas[i].modoJuego;
+						bSalas[i].getChildAt(1).visible = true;
+						bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
 					}
-					bSalas[i].getChildAt(0).visible = true;
-					bSalas[i].getChildAt(1).text = game.global.salas[i].modoJuego;
-					bSalas[i].getChildAt(1).visible = true;
-					bSalas[i].getChildAt(2).text = game.global.salas[i].nPlayers;
+					if (game.global.salas[i].creador === game.global.nombreJugador && bEnviar.tint === tintRojo) {
+						bEnviar.getChildAt(0).visible = true;
+						bEnviar.getChildAt(0).text = game.global.salas[i].nPlayers;
+					}
 				}
-			}
-			for(var i = 0; i < bChat.children.length; i++){
-				if (typeof game.global.chat[i] !== 'undefined') {
-					bChat.getChildAt(i).text = game.global.chat[i];
+				for(var i = 0; i < bChat.children.length; i++){
+					if (typeof game.global.chat[i] !== 'undefined') {
+						bChat.getChildAt(i).text = game.global.chat[i];
+					}
 				}
-			}
 			}
 		}
 		
@@ -136,6 +140,9 @@ Spacewar.menuState.prototype = {
 		bEnviar.visible = false;
 		bEnviar.onInputOver.add(over, {button:bEnviar});
 		bEnviar.onInputOut.add(out, {button:bEnviar});
+		let textPlayersSala = game.add.text(110,10,'0 jugadores en partida',{font:"16px Arial",fill:"#ffffff", align:"center"});
+		textPlayersSala.visible = false;
+		bEnviar.addChild(textPlayersSala);
 		
 		bModoClassic = game.add.button(392, 220, 'salaClassic', modoClassicClick, this);
 		bModoClassic.visible = false;
@@ -304,6 +311,7 @@ function enviarClick() {
 			bEnviar.tint = tintRojo
 		} else {
 			cancelarSala()
+			bEnviar.getChildAt(0).visible = false;
 			bEnviar.tint = tintAzul
 		}
 	}

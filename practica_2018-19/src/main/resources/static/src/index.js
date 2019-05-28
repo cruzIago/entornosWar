@@ -50,6 +50,7 @@ window.onload = function() {
 					nuevaSala.nombre=sala.nombre
 					nuevaSala.modoJuego=sala.modoJuego
 					nuevaSala.puntuaciones="";
+					nuevaSala.creador = sala.creador
 					nuevaSala.inProgress = sala.inProgress
 					game.global.salas.push(nuevaSala)
 				}

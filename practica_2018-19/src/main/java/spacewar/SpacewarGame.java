@@ -232,6 +232,7 @@ public class SpacewarGame {
 					jsonSala.put("nombre", sala.getNombreSala());
 					jsonSala.put("modoJuego", sala.getModoJuego());
 					jsonSala.put("inProgress", sala.isInProgress());
+					jsonSala.put("creador", sala.getCreador());
 					arrayNodeSalas.addPOJO(jsonSala);
 				} else {
 					arrayNodeSalas.addPOJO(putSalaNull());
